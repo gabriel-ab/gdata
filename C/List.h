@@ -8,41 +8,11 @@
 #ifndef LIST_H
 #define LIST_H
 
-// #define get(pointer,type) (*(type*)pointer)
-#define cast(pointer,type) ((type*)pointer)
-
 struct node {
     struct node *next;
     struct node *back;
     void *data;
 };
-
-//  ======== node Constructor/Destructor ==========
-struct node *new_node(size_t data_size) {
-    struct node *ptr = (struct node *)malloc(sizeof(struct node));
-    if (ptr) {
-        ptr->back = NULL;
-        ptr->next = NULL;
-        ptr->data = malloc(data_size);
-    }
-    return ptr;
-}
-void del_node(struct node *n) {
-    if (n) {
-        if (n->back) n->back->next = n->next;
-        if (n->next) n->next->back = n->back;
-        free(n->data);
-        free(n);
-    }
-}
-// rescursive deletion of nodes
-void internal_del_all_nodes(struct node *n) {
-    if (n){
-        internal_del_all_nodes(n->next);
-        free(n->data);
-        free(n);
-    }
-}
 
 typedef struct {
     struct node *head;
@@ -51,20 +21,52 @@ typedef struct {
     const size_t data_size;
 }List;
 
-// ======== List Functions ==========
 
-// ======== List Constructor/Destructor ==========
+//  ========= Internal Functions ==========
+
 /* 
- * List Create a Empty List holding the type size
+ * Allocate a node and return the pointer
+ * obs: size in bytes
  */
-#define ListCreate(type) (List){NULL, NULL, 0, sizeof(type)}
-// #define ListCreate(datatype, name) List name = (List){NULL, NULL, 0, sizeof(datatype)}
-#define ListDelete(List) internal_del_all_nodes(List.head)
+struct node *new_node(size_t size) {
+    struct node *ptr = (struct node *)malloc(sizeof(struct node));
+    if (ptr) {
+        ptr->back = NULL;
+        ptr->next = NULL;
+        ptr->data = malloc(size);
+    }
+    return ptr;
+}
 
-// ==== Push functions ==== //
+/* 
+ * Free the given node,
+ * trying to attach back to next and next to back
+ */
+void del_node(struct node *n) {
+    if (n) {
+        if (n->back) n->back->next = n->next;
+        if (n->next) n->next->back = n->back;
+        free(n->data);
+        free(n);
+    }
+}
+/* 
+ * Rescursive deletion of nodes
+ */
+void _internal_del_all_nodes(struct node *n) {
+    if (n){
+        _internal_del_all_nodes(n->next);
+        free(n->data);
+        free(n);
+    }
+}
 
-// Assert that can create a new node at list´s tail and return a pointer of the data
-void *internal_push_back(List *a) {
+
+// ============ Library internal Functions ============ //
+/* 
+ * Create a new node at List's tail
+ */
+void *_internal_push_back(List *a) {
     struct node *n = new_node(a->data_size);
     if (n == NULL) return NULL;
     n->next = NULL;
@@ -77,15 +79,11 @@ void *internal_push_back(List *a) {
     a->size++;
     return n->data;
 }
-// Create a node in list´s tail and atribute a value
-#define push_back(list, value) ({\
-    void * data = internal_push_back(&list);\
-    if (data)\
-        set(data, typeof(value)) = value;\
-})
 
-// Assert that can create a new node at list´s head and return a pointer of the data
-void *internal_push_front(List *a) {
+/* 
+ * Create a new node at List's head
+ */
+void *_internal_push_front(List *a) {
     struct node *n = new_node(a->data_size);
     if (n == NULL) return NULL;
     n->back = NULL;
@@ -98,19 +96,12 @@ void *internal_push_front(List *a) {
     a->size++;
     return n->data;
 }
-// Push a value to head of a list
-#define push_front(list, value) ({\
-    void * data = internal_push_front(&list);\
-    if (data)\
-        set(data, typeof(value)) = value;\
-})
 
-
-// ==== Pop functions ==== //
-
-// Assert that can delete the last node
-struct node *internal_pop_back(List *a) {
-    if (a->size > 0) {
+/* 
+ * Delete the last node of a list.
+ */
+struct node *_internal_pop_back(List *a) {
+    if (a->size) {
         struct node *result = new_node(a->data_size);
         result->data = a->tail->data;
         if (a->size == 1) {
@@ -127,19 +118,11 @@ struct node *internal_pop_back(List *a) {
     }
     return NULL;
 }
-// delete the last node and return it´s value
-#define pop_back(type,list) ({\
-    type res = {0};\
-    struct node *n = internal_pop_back(&list);\
-    if(n){\
-        res = set(n->data,type);\
-        del_node(n);\
-    }\
-    res;\
-})
 
-// Assert that can delete the first node
-struct node *internal_pop_front(List *a) {
+/* 
+ * Delete the first node of a list,
+ */
+struct node *_internal_pop_front(List *a) {
     if (a->size > 0) {
         struct node *result = new_node(a->data_size);
         result->data = a->head->data;
@@ -157,17 +140,58 @@ struct node *internal_pop_front(List *a) {
     }
     return NULL;
 }
-// delete the first node and return it´s value
-#define pop_front(type,list) ({\
+
+
+// ============ FUNCTIONS DECLARATIONS ============ //
+/* 
+ * List Create a Empty List holding the type size
+ * obs: you must call ListDelete() to free alocated memory
+ */
+#define ListCreate(type) (List){NULL, NULL, 0, sizeof(type)}
+
+/* 
+ *  Free all nodes from a Created List
+ */
+#define ListDelete(List) internal_del_all_nodes(List.head)
+
+/* 
+ * Create a node in list´s tail and atribute value.
+ */
+#define List_pushBack(list, value) ({\
+    void * data = _internal_push_back(&list);\
+    if (data) *(typeof(value)*)data = value;\
+})
+
+/* 
+ * Create a node in list´s head and atribute value.
+ */
+#define List_pushBack(list, value) ({\
+    void * data = _internal_push_front(&list);\
+    if (data) *(typeof(value)*)data = value;\
+})
+
+/* 
+ * Delete the last node and return it´s value.
+ */
+#define List_popBack(type,list) ({\
     type res = {0};\
-    struct node *n = internal_pop_front(&list);\
+    struct node *n = _internal_pop_back(&list);\
+    if(n) res = *(type*)(n->data);\
+    del_node(n);\
+    res;\
+})
+
+/* 
+ * Delete the first node and return it´s value.
+ */
+#define List_popFront(type,list) ({\
+    type res = {0};\
+    struct node *n = _internal_pop_front(&list);\
     if(n){\
-        res = set(n->data,type);\
+        res = *(type*)(n->data);\
         del_node(n);\
     }\
     res;\
 })
-
-typedef 
 
 #endif // LIST_H
