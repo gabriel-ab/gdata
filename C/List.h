@@ -154,7 +154,7 @@ void * _list_at(List list, unsigned int index) {
     return _list_node_find(list.head, index)->data;
 }
 
-// ============ FUNCTIONS DECLARATIONS ============ //
+// ============ PUBLIC FUNCTIONS ============ //
 
 /* 
  * ### Create a Empty List holding the type size
@@ -235,4 +235,18 @@ void * _list_at(List list, unsigned int index) {
         node = node->next;\
     }\
 })
+
+/* 
+ * ### Declare all functions for a type of list.
+ * Executable size reduced and faster compilation.
+ * No need to pass type anymore.
+ */
+#define List_declare(type) \
+void ListPushBack(List list, type value) {List_pushBack(list, value);}\
+void ListPushFront(List list, type value) {List_pushFront(list, value);}\
+type ListPopBack(List list) { List_popBack(type, list);}\
+type ListPopFront(List list) { List_popFront(type, list);}\
+void ListMap(List list, type (*function)(type)) {List_map(type, list, function);}\
+type ListAt(List list, int index) { return List_at(type, list, index);}
+
 #endif // LIST_H
