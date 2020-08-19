@@ -264,17 +264,37 @@ void * _list_at(List list, unsigned int index) {
     }\
 })
 
-/* 
- * ### Declare all functions for a type of list.
+/* ### Declare all functions for a type of list.
+ * 
+ * Use it if calling many times the same function.
+ * 
  * Executable size reduced and faster compilation.
  * No need to pass type anymore.
  */
-#define List_declare(type) \
-void ListPushBack(List *list, type value) {List_pushBack(type, (*list), value);}\
-void ListPushFront(List *list, type value) {List_pushFront(type, (*list), value);}\
-type ListPopBack(List *list) { return List_popBack(type, (*list));}\
-type ListPopFront(List *list) { return List_popFront(type, (*list));}\
-void ListMap(List list, type (*function)(type)) {List_map(type, list, function);}\
-type ListAt(List list, int index) { return List_at(type, list, index);}
+#define List_declare_functions(type)\
+\
+void List_##type##_pushBack(List *list, type value) {\
+    List_pushBack(type, (*list), value);\
+}\
+\
+void List_##type##_pushFront(List *list, type value) {\
+    List_pushFront(type, (*list), value);\
+}\
+\
+type List_##type##_popBack(List *list) {\
+     return List_popBack(type, (*list));\
+}\
+\
+type List_##type##_popFront(List *list) {\
+     return List_popFront(type, (*list));\
+}\
+\
+void List_##type##_map(List list, type (*function)(type)) {\
+    List_map(type, list, function);\
+}\
+\
+type List_##type##_at(List list, int index) {\
+     return List_at(type, list, index);\
+}
 
 #endif // LIST_H
