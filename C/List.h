@@ -1,5 +1,5 @@
 /* ====  Made by Gabriel-AB  ====
- * Generic double linked List Library 1.1
+ * Generic double linked List Library v1.2
  * 
  * Define LIST_DEBUG before inclusion to receive error messages.
  */
@@ -8,6 +8,10 @@
 #define LIST_H
 #include <stdlib.h>
 #include <memory.h>
+
+#ifdef LIST_DEBUG
+# include <stdio.h>
+#endif
 
 struct node {
     struct node *next;
@@ -20,7 +24,11 @@ typedef struct list {
     struct node *tail;
     size_t size;
     const size_t data_size;
-    char type_name[32];
+    struct node * iterator;
+#ifdef LIST_DEBUG
+    char *type_name;
+    char *toString; // Don't use, (does not update automatically), use `List_toString()` instead
+#endif
 } *List;
 
 
@@ -34,19 +42,23 @@ struct node *_list_new_node(size_t size) {
     if (ptr) {
         ptr->back = NULL;
         ptr->next = NULL;
-        ptr->data = malloc(size);
+        ptr->data = calloc(1,size);
     }
+#ifdef LIST_DEBUG
+    else perror("LIST_DEBUG: Failed to create node");
+#endif
+    return ptr;
 }
 
 /* 
- * Free the given node,
+ * Free the given node
+ * _node->data is **not** freed_
  * trying to attach back to next and next to back.
  */
-void _list_del_node(struct node *n, _Bool delete_data) {
+void _list_del_node(struct node *n) {
     if (n) {
         if (n->back) n->back->next = n->next;
         if (n->next) n->next->back = n->back;
-        if (delete_data) free(n->data);
         free(n);
     }
 }
@@ -74,75 +86,151 @@ struct node * _list_node_find(struct node * node, int index) {
     return _list_node_find(next, index + (reverse ? 1 : -1));
 }
 
+/* 
+ * List constrained index finder 
+ * if index is negative, searchs in reverse. 
+ * return: the node
+ */
+struct node * _list_at(List list, int index) {
+    if (abs(index) < list->size) {
+        if (index >= 0)
+            return _list_node_find(list->head, index);
+        else
+            return _list_node_find(list->tail, index);
+    }
+#ifdef LIST_DEBUG
+    else perror("LIST_DEBUG: Index out of the list!");
+#endif
+    return NULL;
+}
+
 // ============ PUBLIC FUNCTIONS ============ //
 
-// ### CONSTRUCTORS
-/* 
- * ### Create a Empty List holding the type size
- * Obs: you must call ListDelete() to free alocated memory
- */
+// ### Constructor
 
-List _list_create(size_t data_size, char type_name[32]) {
+List _list_create(size_t data_size, char type_name[]) {
     List list = (List)malloc(sizeof(struct list));
     (*(size_t*)&list->data_size) = data_size;
     list->head = NULL;
     list->tail = NULL;
     list->size = 0;
-    memcpy(list->type_name, type_name, 32);
+#ifdef LIST_DEBUG
+    list->type_name = malloc(strlen(type_name) +1);
+    strcpy(list->type_name, type_name);
+    list->toString = malloc(1);
+#endif
     return list;
 }
+/* 
+ * ### Create a Empty List holding the type size
+ * Obs: you must call `ListDelete()` to free alocated memory
+ * Syntatic sugar to `_list_create()`
+ */
 #define ListCreate(type) _list_create(sizeof(type), #type)
 
 /* 
- * ### DESTRUCTOR 
+ * ### Destructor 
  * Free all nodes from a Created List, and clean it.
  */
 void ListDelete(List list) {
     _list_del_all_nodes(list->head);
+#ifdef LIST_DEBUG
+    free(list->type_name);
+    free(list->toString);
+#endif
     free(list);
 }
 
-
 /* 
- * ### Create a node in list's tail and atribute it's value.
+ * ### Create a node in the index especified
+ * if `index` is negative, searchs in reverse. 
  */
-void List_pushBack(List list, void * item) {
-    struct node *n = _list_new_node(list->data_size);
-    if (n) {
-        n->next = NULL;
-        n->back = list->tail;
-        if (list->tail)
-            list->tail->next = n;
-        else
-            list->head = n;
-        list->tail = n;
+void List_push(List list, int index, void * item) {
+    struct node *old_node = NULL;
+    struct node *new_node = _list_new_node(list->data_size);
+
+    if (new_node) {
+        if (list->size > 0) {
+            if (index == 0) {
+                old_node = list->head;
+                list->head = new_node;
+            }
+            else if (index == -1) {
+                old_node = list->tail;
+                list->tail = new_node;
+            }
+            else old_node = _list_at(list, index);
+        } else {
+            list->head = list->tail = list->iterator = new_node;
+        }
+
+        if (old_node) {
+            if (index >= 0) { // Goes before old item
+                new_node->next = old_node;
+                new_node->back = old_node->back;
+                if(old_node->back)
+                    old_node->back->next = new_node;
+                old_node->back = new_node;
+            } else { // Goes after old item
+                new_node->back = old_node;
+                new_node->next = old_node->next;
+                if(old_node->next)
+                    old_node->next->back = new_node;
+                old_node->next = new_node;
+            }
+        }
+        memcpy(new_node->data, item, list->data_size);
         list->size++;
-        if (item) memcpy(n->data, item, list->data_size);
     }
 #ifdef LIST_DEBUG
-    else perror("LIST_DEBUG: Failed to create node at list's tail");
+    else perror("LIST_DEBUG: Failed to push");
 #endif
 }
 
+
 /* 
- * ### Create a node in list's head and atribute it's value.
+ * ### Create a node in list's tail.
+ */
+void List_pushBack(List list, void * item) {
+    List_push(list, -1, item);
+}
+
+/* 
+ * ### Create a node in list's head.
  */
 void List_pushFront(List list, void * item) {
-    struct node *n = _list_new_node(list->data_size);
-    if (n) {
-        n->back = NULL;
-        n->next = list->head;
-        if (list->head)
-            list->head->back = n;
-        else
-            list->tail = n;
-        list->head = n;
-        list->size++;
-        if (item) memcpy(n->data, item, list->data_size);
+    List_push(list, 0, item);
+}
+
+/*
+ * ### Retrieve the in the index specified
+ * if `index` is negative, searchs in reverse. 
+ * The data is alocated, you must free later
+ */
+void *List_pop(List list, int index) {
+    struct node * n = NULL;
+    if (list->size > 0) {
+        if (index == 0) {
+            n = list->head;
+            list->head = n->next;
+        } 
+        else if (index == -1) {
+            n = list->tail;
+            list->tail = n->back;
+        }
+        else n = _list_at(list, index);
+
+        if (n) {
+            list->size--;
+            void * data = n->data;
+            _list_del_node(n);
+            return data;
+        }
     }
 #ifdef LIST_DEBUG
-    else perror("LIST_DEBUG: Failed to create node at list's head");
+    perror("LIST_DEBUG: List_pop(): List is empty");
 #endif
+    return NULL;
 }
 
 /* 
@@ -150,24 +238,7 @@ void List_pushFront(List list, void * item) {
  * you must cast to your type with `*(type*)`
  */
 void * List_popBack(List list) {
-    if (list->size > 0) {
-        void * data = list->tail->data;
-        if (list->size == 1) {
-            _list_del_node(list->tail, 0);
-            list->head = NULL;
-            list->tail = NULL;
-        } else {
-            list->tail = list->tail->back;
-            _list_del_node(list->tail->next, 0);
-            list->tail->next = NULL;
-        }
-        list->size--;
-        return data;
-    }
-#ifdef LIST_DEBUG
-    perror("LIST_DEBUG: List is empty");
-#endif
-    return NULL;
+    return List_pop(list, -1);
 }
 
 /* 
@@ -175,24 +246,7 @@ void * List_popBack(List list) {
  * you must cast to your type with `*(type*)`
  */
 void * List_popFront(List list) {
-    if (list->size > 0) {
-        void* result = list->head->data;
-        if (list->size == 1) {
-            _list_del_node(list->head, 0);
-            list->head = NULL;
-            list->tail = NULL;
-        } else {
-            list->head = list->head->next;
-            _list_del_node(list->head->back, 0);
-            list->head->back = NULL;
-        }
-        list->size--;
-        return result;
-    }
-#ifdef LIST_DEBUG
-    perror("LIST_DEBUG: List is empty");
-#endif
-    return NULL;
+    return List_pop(list, 0);
 }
 
 /* 
@@ -219,48 +273,38 @@ void List_resize(List list, unsigned int new_size) {
  * ex: `List_at(yourlist, -1)` = last element
  */
 void * List_at(List list, int index) {
-    if (abs(index) < list->size) {
-        if (index >= 0)
-            return _list_node_find(list->head, index)->data;
-        else
-            return _list_node_find(list->tail, index)->data;
+    return _list_at(list, index)->data;
+}
+
+/* 
+ * ### return one data per time from the list, then resets
+ * you must expect `NULL` as the end
+ * 
+ * using *for*: 
+ * - `for (type *data; (data = List_forEach(list));) {}`
+ * using *while*: 
+ * - `type* info; while(info = List_forEach(lista)) {}`
+ */
+void * List_forEach(List list) {
+    if (list->iterator) {
+        void * data = list->iterator->data;
+        list->iterator = list->iterator->next;
+        return data;
     }
-#ifdef LIST_DEBUG
-    perror("LIST_DEBUG: Index out of the list!");
-#endif
+    list->iterator = list->head;
     return NULL;
 }
 
 /* 
- * ### Map a function through the list
- * The function must take data by reference
+ * ### Copy all content of src list
  */
-void List_forEach(List list, void (*function)(void*)) {
-    struct node * node = list->head;
-    do {
-        function(node->data);
-    } while(node = node->next);
-}
+List List_copy(List src) {
+    List dst = _list_create(src->data_size, src->type_name);
+    void *data;
+    while ( (data = List_forEach(src)) )
+        List_pushBack(dst, data);
 
-/* 
- * ### Copy all content of src to dst
- * The list type must be the same.
- */
-void List_copy(List dst, List src) {
-    ListDelete(dst);
-    dst = _list_create(src->data_size, "");
-    memcpy(dst->type_name, src->type_name, 32);
-    
-    List_resize(dst, src->size);
-    struct node *dst_node = dst->head;
-    struct node *src_node = src->head;
-
-    while (dst_node != NULL) {
-        memcpy(dst_node->data, src_node->data, src->data_size);
-        
-        dst_node = dst_node->next;
-        src_node = src_node->next;
-    }
+    return dst;
 }
 
 /* 
@@ -277,20 +321,7 @@ void List_clear(List list) {
  * ### Remove the element of the given index
  */
 void List_remove(List list, int index) {
-    _list_del_node(_list_node_find(list, index), 1);
-    list->size--;
-}
-
-/*
- * ### Retrieve the in the index specified
- * The data is alocated, you must free later
- */
-void *List_pop(List list, int index) {
-    struct node * n = _list_node_find(list->head, index);
-    void * data = n->data;
-    _list_del_node(n, 0);
-    list->size--;
-    return data;
+    free(List_pop(list, index));
 }
 
 
@@ -308,19 +339,23 @@ void List_pushArray(List list, size_t num_elements, void * array) {
 }
 
 /* 
- * ### Resizes the list to array size, then copy all values
+ * ### Copy array to list
+ * return: the list passed
  */
-void List_fromArray(List list, size_t num_elements, void * array) {
+List List_fromArray(List list, size_t num_elements, void * array) {
     List_resize(list, num_elements);
+    struct node * n = list->head;
     for (int i = 0; i < num_elements; i++) {
         void * array_element = (char*)array + i*list->data_size;
-        memcpy(List_at(list,i), array_element, list->data_size);
+        memcpy(n->data, array_element, list->data_size);
+        n = n->next;
     }
+    return list;
 }
 
 /* 
  * ### convert to a array
- * you must cast to your type with `(type*)
+ * you must cast to your type with `(type*)`
  * memory is alocated, you must free after using!
  */
 void * List_toArray(List list) {
@@ -335,9 +370,54 @@ void * List_toArray(List list) {
 }
 
 // # UTILS
-/* ### Transforms a literal in a reference to itself
+/* ### Transforms a literal in a reference to itself and pass by reference
  * good to pass literals into the list
  */
 #define List_litToRef(literal...) ({typeof(literal) res = literal; &res;})
+
+#ifdef LIST_DEBUG
+/* 
+ * ### Info in text format about the list
+ * arg: *dataToString* a function who takes a pointer type and returns a string. 
+ * The returned `char*` of *dataToString* must be dynamicaly allocated.
+ * 
+ * - ex: `char* intToString(int * integer)`
+ * - ex: `char* Vector2ToString(Vector2 * v2)`
+ * 
+ * Memory is allocated, the return of this function must be freed later.
+ */
+char* List_toString(List list, char* (*dataToString)(void *item)) {
+    
+    free(list->toString);
+
+    List info = ListCreate(char);
+    char info_begin[] = "List: ([ ";
+    char info_end[] = "], ";
+    char info_type_size[64];
+
+    char info_space = ' ';
+    int ib_len = strlen(info_begin);
+    List_pushArray(info, ib_len, info_begin);
+
+    if (list->size > 0) {
+        struct node * n = list->head;
+        do {
+            char* dataStr = dataToString(n->data);
+            List_pushArray(info, strlen(dataStr), dataStr);
+            List_pushBack(info, &info_space);
+            free(dataStr);
+        } while ((n = n->next));
+    }
+    List_pushArray(info, strlen(info_end), info_end);
+
+    sprintf(info_type_size, "type: %s, size: %li)", list->type_name, list->size);
+    List_pushArray(info, strlen(info_type_size), info_type_size);
+
+    list->toString = List_toArray(info);
+    ListDelete(info);
+
+    return list->toString;
+}
+#endif // LIST_DEBUG
 
 #endif // LIST_H
