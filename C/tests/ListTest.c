@@ -28,7 +28,7 @@ int main(int argc, char const *argv[]) {
     printf("\nTEST: pushBack\n");
     for (size_t i = 0; i < 3; i++) {
         printf("pushBack(%i)\n", array[i]);
-        List_pushBack(lista, List_litToRef(array[i]));
+        List_pushBack(lista, List_input(int, array[i]));
     }
     printf("%s\n",List_toString(lista, pint));
 
@@ -37,7 +37,7 @@ int main(int argc, char const *argv[]) {
     printf("\nTEST: pushFront\n");
     for (size_t i = 3; i < 6; i++) {
         printf("pushFront(%i)\n", array[i]);
-        List_pushFront(lista, List_litToRef(array[i]));
+        List_pushFront(lista, List_input(int, array[i]));
     }
     printf("%s\n",List_toString(lista, pint));
 

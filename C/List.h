@@ -107,8 +107,11 @@ struct node * _list_at(List list, int index) {
 // ============ PUBLIC FUNCTIONS ============ //
 
 // ### Constructor
-
+#ifdef LIST_DEBUG
 List _list_create(size_t data_size, char type_name[]) {
+#else
+List _list_create(size_t data_size) {
+#endif
     List list = (List)malloc(sizeof(struct list));
     (*(size_t*)&list->data_size) = data_size;
     list->head = NULL;
@@ -121,12 +124,18 @@ List _list_create(size_t data_size, char type_name[]) {
 #endif
     return list;
 }
+
+#ifdef LIST_DEBUG
+/* ### Create a Empty List holding the type size */
+# define ListCreate(type) _list_create(sizeof(type), #type)
+#else
 /* 
  * ### Create a Empty List holding the type size
  * Obs: you must call `ListDelete()` to free alocated memory
  * Syntatic sugar to `_list_create()`
  */
-#define ListCreate(type) _list_create(sizeof(type), #type)
+# define ListCreate(type) _list_create(sizeof(type))
+#endif
 
 /* 
  * ### Destructor 
@@ -142,8 +151,9 @@ void ListDelete(List list) {
 }
 
 /* 
- * ### Create a node in the index especified
+ * ### Push value in the index especified
  * if `index` is negative, searchs in reverse. 
+ * use `List_input()` to pass literals into the list
  */
 void List_push(List list, int index, void * item) {
     struct node *old_node = NULL;
@@ -189,14 +199,14 @@ void List_push(List list, int index, void * item) {
 
 
 /* 
- * ### Create a node in list's tail.
+ * ### Push value in list's end.
  */
 void List_pushBack(List list, void * item) {
     List_push(list, -1, item);
 }
 
 /* 
- * ### Create a node in list's head.
+ * ### Push value in list's begin.
  */
 void List_pushFront(List list, void * item) {
     List_push(list, 0, item);
@@ -299,7 +309,11 @@ void * List_forEach(List list) {
  * ### Copy all content of src list
  */
 List List_copy(List src) {
+#ifdef LIST_DEBUG
     List dst = _list_create(src->data_size, src->type_name);
+#else
+    List dst = _list_create(src->data_size);
+#endif
     void *data;
     while ( (data = List_forEach(src)) )
         List_pushBack(dst, data);
@@ -370,10 +384,11 @@ void * List_toArray(List list) {
 }
 
 // # UTILS
-/* ### Transforms a literal in a reference to itself and pass by reference
- * good to pass literals into the list
+/* 
+ * ### Converts a literal to a reference to itself
  */
-#define List_litToRef(literal...) ({typeof(literal) res = literal; &res;})
+#define List_input(type, input...) ({type res = input; &res;})
+#define List_inputArray(type, inputArray...) ({type res[] = inputArray; res;})
 
 #ifdef LIST_DEBUG
 /* 
