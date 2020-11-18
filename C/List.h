@@ -1,5 +1,7 @@
 /* ====  Made by Gabriel-AB  ====
- * Generic double linked List Library v1.2
+ * Generic double linked List Library v1.3
+ * 
+ * https://github.com/Gabriel-AB
  * 
  * Define LIST_DEBUG before inclusion to receive error messages.
  */
@@ -22,17 +24,18 @@ struct node {
 typedef struct list {
     struct node *head;
     struct node *tail;
+    struct node *iterator;
     size_t size;
     const size_t data_size;
-    struct node * iterator;
+    void (*valueDestructor)(void *value);
 #ifdef LIST_DEBUG
     char *type_name;
-    char *toString; // Don't use, (does not update automatically), use `List_toString()` instead
+    char *toString; // Don't use, use `List_toString()` instead
 #endif
 } *List;
 
 
-// ============ Library internal Functions ============ //
+// ====================== LIBRARY INTERNAL FUNCTIONS ====================== //
 /* 
  * Allocate a node and return the pointer
  * obs: size in bytes
@@ -51,25 +54,14 @@ struct node *_list_new_node(size_t size) {
 }
 
 /* 
- * Free the given node
+ * Free the given node conecting neighbors to each other
  * _node->data is **not** freed_
- * trying to attach back to next and next to back.
+ * 
  */
 void _list_del_node(struct node *n) {
     if (n) {
         if (n->back) n->back->next = n->next;
         if (n->next) n->next->back = n->back;
-        free(n);
-    }
-}
-
-/* 
- * Rescursive deletion of nodes, and data.
- */
-void _list_del_all_nodes(struct node *n) {
-    if (n){
-        _list_del_all_nodes(n->next);
-        free(n->data);
         free(n);
     }
 }
@@ -104,19 +96,18 @@ struct node * _list_at(List list, int index) {
     return NULL;
 }
 
-// ============ PUBLIC FUNCTIONS ============ //
-
 // ### Constructor
 #ifdef LIST_DEBUG
-List _list_create(size_t data_size, char type_name[]) {
+List _list_create(size_t data_size, void (*valueDestructor)(void *value), char type_name[]) {
 #else
-List _list_create(size_t data_size) {
+List _list_create(size_t data_size, void (*valueDestructor)(void *value)) {
 #endif
     List list = (List)malloc(sizeof(struct list));
     (*(size_t*)&list->data_size) = data_size;
     list->head = NULL;
     list->tail = NULL;
     list->size = 0;
+    list->valueDestructor = valueDestructor;
 #ifdef LIST_DEBUG
     list->type_name = malloc(strlen(type_name) +1);
     strcpy(list->type_name, type_name);
@@ -125,30 +116,8 @@ List _list_create(size_t data_size) {
     return list;
 }
 
-#ifdef LIST_DEBUG
-/* ### Create a Empty List holding the type size */
-# define ListCreate(type) _list_create(sizeof(type), #type)
-#else
-/* 
- * ### Create a Empty List holding the type size
- * Obs: you must call `ListDelete()` to free alocated memory
- * Syntatic sugar to `_list_create()`
- */
-# define ListCreate(type) _list_create(sizeof(type))
-#endif
 
-/* 
- * ### Destructor 
- * Free all nodes from a Created List, and clean it.
- */
-void ListDelete(List list) {
-    _list_del_all_nodes(list->head);
-#ifdef LIST_DEBUG
-    free(list->type_name);
-    free(list->toString);
-#endif
-    free(list);
-}
+// =========================== PUBLIC FUNCTIONS =========================== //
 
 /* 
  * ### Push value in the index especified
@@ -310,9 +279,9 @@ void * List_forEach(List list) {
  */
 List List_copy(List src) {
 #ifdef LIST_DEBUG
-    List dst = _list_create(src->data_size, src->type_name);
+    List dst = _list_create(src->data_size, src->valueDestructor, src->type_name);
 #else
-    List dst = _list_create(src->data_size);
+    List dst = _list_create(src->data_size, src->valueDestructor);
 #endif
     void *data;
     while ( (data = List_forEach(src)) )
@@ -322,22 +291,53 @@ List List_copy(List src) {
 }
 
 /* 
- * ### Deletes all nodes and clear the list
+ * ### Remove the element of the given index
+ * 
  */
-void List_clear(List list) {
-    _list_del_all_nodes(list->head);
-    list->size = 0;
-    list->head = NULL;
-    list->tail = NULL;
+void List_remove(List list, int index) {
+    if (list->valueDestructor)
+        list->valueDestructor(List_pop(list, index));
+    else
+        free(List_pop(list, index));
 }
 
 /* 
- * ### Remove the element of the given index
+ * ### Deletes all nodes and clear the list
  */
-void List_remove(List list, int index) {
-    free(List_pop(list, index));
+void List_clear(List list) {
+    while (list->size > 0)
+        List_remove(list, -1);
+    list->iterator = list->head = list->tail =NULL;
 }
 
+#ifdef LIST_DEBUG
+# define ListCreate(type, valueDestructor) _list_create(sizeof(type), valueDestructor, #type)
+#else
+/* 
+ * ### Create a Empty List holding the type size
+ * _Parameters_
+ * * type: ex: int, float, YourType...
+ * * valueDestructor: destructor to your type. if you don't need it pass `0` or `NULL`
+ * 
+ * _Obsevations_
+ * * You must call `ListDelete()` to free alocated memory
+ * * This macro is a Syntatic sugar to `_list_create()`
+ */
+# define ListCreate(type, valueDestructor) _list_create(sizeof(type), valueDestructor)
+#endif
+
+/* 
+ * ### Destructor 
+ * Deletes a Created List
+ */
+void ListDelete(List list) {
+    List_clear(list);
+#ifdef LIST_DEBUG
+    free(list->type_name);
+    free(list->toString);
+#endif
+    free(list);
+}
 
 // # Array related functions
 
@@ -347,7 +347,7 @@ void List_remove(List list, int index) {
 void List_pushArray(List list, size_t num_elements, void * array) {
     for (size_t i = 0; i < num_elements; i++) {
         // jumping `i` bytes
-        void * array_element = (char*)array + i*list->data_size;
+        void * array_element = array + i*list->data_size;
         List_pushBack(list, array_element);
     }
 }
@@ -405,7 +405,7 @@ char* List_toString(List list, char* (*dataToString)(void *item)) {
     
     free(list->toString);
 
-    List info = ListCreate(char);
+    List info = ListCreate(char, NULL);
     char info_begin[] = "List: ([ ";
     char info_end[] = "], ";
     char info_type_size[64];
