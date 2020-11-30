@@ -2,12 +2,11 @@
 #include "../List.h"
 #include <time.h>
 
-char * pint(void * integer) {
-    char answer[256];
-    sprintf(answer, "%i", *(int*)integer);
-    char * allocated_ans = malloc(strlen(answer) +1);
-    strcpy(allocated_ans, answer);
-    return allocated_ans;
+void print(List list) {
+    printf("[ ");
+    for (int *integer; integer = List_forEach(list);)
+        printf("%i ", *integer);
+    printf("]\n");
 }
 
 int main(int argc, char const *argv[]) {
@@ -23,24 +22,23 @@ int main(int argc, char const *argv[]) {
     };
 
     List lista = ListCreate(int);
+    print(lista);
 
     // TEST: pushBack
     printf("\nTEST: pushBack\n");
     for (size_t i = 0; i < 3; i++) {
         printf("pushBack(%i)\n", array[i]);
-        List_pushBack(lista, List_input(int, array[i]));
+        List_pushBack(lista, &array[i]);
     }
-    printf("%s\n",List_toString(lista, pint));
-
-
+    print(lista);
+    
     // TEST: pushFront
     printf("\nTEST: pushFront\n");
     for (size_t i = 3; i < 6; i++) {
         printf("pushFront(%i)\n", array[i]);
-        List_pushFront(lista, List_input(int, array[i]));
+        List_pushFront(lista, &array[i]);
     }
-    printf("%s\n",List_toString(lista, pint));
-
+    print(lista);
 
     // TEST: popBack
     printf("\nTEST: popBack\n");
@@ -51,36 +49,32 @@ int main(int argc, char const *argv[]) {
         else 
             printf("null pointer\n");
     }
-    printf("%s\n",List_toString(lista, pint));
-
+    print(lista);
 
     // TEST: popFront
     printf("\nTEST: popFront\n");
     for (size_t i = 0; i < 3; i++) {
         int *element = List_popFront(lista);
-        if (element != NULL)
+        if (element != NULL) {
             printf("popfront() -> %i\n", *element);
+            free(element);
+        }
         else 
             printf("null pointer\n");
     }
-    printf("%s\n",List_toString(lista, pint));
-
+    print(lista);
 
     // TEST: fromArray
     printf("\nTEST: fromArray\n");
-    List_fromArray(lista, 6, array);
-    printf("%s\n",List_toString(lista, pint));
-
+    ListDelete(lista);
+    lista = List_fromArray(int, 6, array);
+    print(lista);
 
     // TEST: Resize
     printf("\nTEST: Resize\n");
-    printf("resize(list[0], 8)\n");
-    List_resize(lista, 8);
-    printf("%s\n",List_toString(lista, pint));
     printf("resize(list[0], 5)\n");
     List_resize(lista, 5);
-    printf("%s\n",List_toString(lista, pint));
-
+    print(lista);
 
     // TEST: At
     printf("\nTEST: At\n");
@@ -92,52 +86,47 @@ int main(int argc, char const *argv[]) {
     printf("at\t1 -> %i\n", at1);
     printf("at\t-1 -> %i\n", at_1);
     printf("at\t-2 -> %i\n", at_2);
-
-    printf("%s\n",List_toString(lista, pint));
+    print(lista);
 
     // TEST: forEach
     printf("\nTEST: forEach\n");
     for (int *info; info = List_forEach(lista);) {
-        printf("%i\n", *info);
+        printf("item: %i\n", *info);
     }
-    printf("%s\n",List_toString(lista, pint));
-
+    print(lista);
 
     // TEST: copy
     printf("\nTEST: copy\n");
     List lista2 = List_copy(lista);
     List_remove(lista2, 0);
-
     printf("copy(list2, list1) and remove(list2, 0)\n");
-    printf("list1 -> %s",List_toString(lista, pint));
-    printf("list2 -> %s",List_toString(lista2, pint));
+    print(lista2);
     ListDelete(lista2);
+    print(lista);
 
 
     // TEST: remove
     printf("\nTEST: remove\n");
     List_remove(lista, 2);
     printf("index 2 removed\n");
-    printf("%s\n",List_toString(lista, pint));
-
+    print(lista);
 
     // TEST: pop
     printf("\nTEST: pop\n");
     int *pop = (int*)List_pop(lista, -1);
     printf("pop(-1) -> %i\n", *pop);
-    free(pop);
-    printf("%s\n",List_toString(lista, pint));
-
+    print(lista);free(pop);
+    
     // TEST: clear
     printf("\nTEST: clear\n");
     List_clear(lista);
-    printf("%s\n",List_toString(lista, pint));
-
+    print(lista);
+    
     // TEST: pushArray
     printf("\nTEST: pushArray\n");
     List_pushArray(lista, 6, array);
-    printf("%s\n",List_toString(lista, pint));
-
+    print(lista);
+    
     // TEST: toArray
     printf("\nTEST: toArray:\n");
     int* arr = List_toArray(lista);

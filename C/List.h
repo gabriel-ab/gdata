@@ -28,10 +28,6 @@ typedef struct list {
     size_t size;
     const size_t data_size;
     void (*valueDestructor)(void *value);
-#ifdef LIST_DEBUG
-    char *type_name;
-    char *toString; // Don't use, use `List_toString()` instead
-#endif
 } *List;
 
 
@@ -97,22 +93,12 @@ struct node * _list_at(List list, int index) {
 }
 
 // ### Constructor
-#ifdef LIST_DEBUG
-List _list_create(size_t data_size, void (*valueDestructor)(void *value), char type_name[]) {
-#else
-List _list_create(size_t data_size, void (*valueDestructor)(void *value)) {
-#endif
+List _list_create(size_t data_size) {
     List list = (List)malloc(sizeof(struct list));
     (*(size_t*)&list->data_size) = data_size;
     list->head = NULL;
     list->tail = NULL;
     list->size = 0;
-    list->valueDestructor = valueDestructor;
-#ifdef LIST_DEBUG
-    list->type_name = malloc(strlen(type_name) +1);
-    strcpy(list->type_name, type_name);
-    list->toString = malloc(1);
-#endif
     return list;
 }
 
@@ -122,7 +108,12 @@ List _list_create(size_t data_size, void (*valueDestructor)(void *value)) {
 /* 
  * ### Push value in the index especified
  * if `index` is negative, searchs in reverse. 
- * use `List_input()` to pass literals into the list
+ * 
+ * for variables, pass reference.
+ * ex: `List_push(listName, &myItem)`
+ * 
+ * for literals use `(type[]){value}`
+ * ex: `List_push(listName, (type[]){value})`
  */
 void List_push(List list, int index, void * item) {
     struct node *old_node = NULL;
@@ -132,7 +123,7 @@ void List_push(List list, int index, void * item) {
         if (list->size > 0) {
             if (index == 0) {
                 old_node = list->head;
-                list->head = new_node;
+                list->iterator = list->head = new_node;
             }
             else if (index == -1) {
                 old_node = list->tail;
@@ -169,6 +160,12 @@ void List_push(List list, int index, void * item) {
 
 /* 
  * ### Push value in list's end.
+ * 
+ * for variables, pass reference.
+ * ex: `List_pushBack(listName, &myItem)`
+ * 
+ * for literals use `(type[]){value}`
+ * ex: `List_pushBack(listName, (type[]){value})`
  */
 void List_pushBack(List list, void * item) {
     List_push(list, -1, item);
@@ -176,6 +173,12 @@ void List_pushBack(List list, void * item) {
 
 /* 
  * ### Push value in list's begin.
+ * 
+ * for variables, pass reference.
+ * ex: `List_pushFront(listName, &myItem)`
+ * 
+ * for literals use `(type[]){value}`
+ * ex: `List_pushFront(listName, (type[]){value})`
  */
 void List_pushFront(List list, void * item) {
     List_push(list, 0, item);
@@ -191,7 +194,7 @@ void *List_pop(List list, int index) {
     if (list->size > 0) {
         if (index == 0) {
             n = list->head;
-            list->head = n->next;
+            list->iterator = list->head = n->next;
         } 
         else if (index == -1) {
             n = list->tail;
@@ -278,11 +281,7 @@ void * List_forEach(List list) {
  * ### Copy all content of src list
  */
 List List_copy(List src) {
-#ifdef LIST_DEBUG
-    List dst = _list_create(src->data_size, src->valueDestructor, src->type_name);
-#else
-    List dst = _list_create(src->data_size, src->valueDestructor);
-#endif
+    List dst = _list_create(src->data_size);
     void *data;
     while ( (data = List_forEach(src)) )
         List_pushBack(dst, data);
@@ -310,21 +309,18 @@ void List_clear(List list) {
     list->iterator = list->head = list->tail =NULL;
 }
 
-#ifdef LIST_DEBUG
-# define ListCreate(type, valueDestructor) _list_create(sizeof(type), valueDestructor, #type)
-#else
 /* 
  * ### Create a Empty List holding the type size
- * _Parameters_
+ * _Argument_
  * * type: ex: int, float, YourType...
- * * valueDestructor: destructor to your type. if you don't need it pass `0` or `NULL`
  * 
  * _Obsevations_
  * * You must call `ListDelete()` to free alocated memory
  * * This macro is a Syntatic sugar to `_list_create()`
+ * * set `valueDestructor` if you need to free allocated memory holded by your data
+ *   ex: `myList->valueDestructor = MyDestructor;`
  */
-# define ListCreate(type, valueDestructor) _list_create(sizeof(type), valueDestructor)
-#endif
+#define ListCreate(type) _list_create(sizeof(type))
 
 /* 
  * ### Destructor 
@@ -332,10 +328,6 @@ void List_clear(List list) {
  */
 void ListDelete(List list) {
     List_clear(list);
-#ifdef LIST_DEBUG
-    free(list->type_name);
-    free(list->toString);
-#endif
     free(list);
 }
 
@@ -353,19 +345,26 @@ void List_pushArray(List list, size_t num_elements, void * array) {
 }
 
 /* 
- * ### Copy array to list
- * return: the list passed
+ * ### Create a list based on a array
  */
-List List_fromArray(List list, size_t num_elements, void * array) {
-    List_resize(list, num_elements);
-    struct node * n = list->head;
-    for (int i = 0; i < num_elements; i++) {
-        void * array_element = (char*)array + i*list->data_size;
-        memcpy(n->data, array_element, list->data_size);
-        n = n->next;
-    }
+List _list_fromArray(size_t data_size, size_t num_elements, void * array) {
+    List list = _list_create(data_size);
+    List_pushArray(list, num_elements, array);
     return list;
 }
+/* 
+ * ### Create a list based on a named array
+ * Args:
+ * * type: type of your list. ex: int, float, YourType...
+ * * num_elements: positive integer
+ * * array: variable or literal.
+ * 
+ * Ex: `List_fromArray(double, 5, myArray)`
+ * Ex: `List_fromArray(double, 5, (double[]){2.7, 3.2, 0.5, 0.1, 0.9})`
+ */
+#define List_fromArray(type, num_elements, array...)\
+    _list_fromArray(sizeof(type), num_elements, array)
+
 
 /* 
  * ### convert to a array
@@ -382,57 +381,5 @@ void * List_toArray(List list) {
     }
     return array;
 }
-
-// # UTILS
-/* 
- * ### Converts a literal to a reference to itself
- */
-#define List_input(type, input...) ({type res = input; &res;})
-#define List_inputArray(type, inputArray...) ({type res[] = inputArray; res;})
-
-#ifdef LIST_DEBUG
-/* 
- * ### Info in text format about the list
- * arg: *dataToString* a function who takes a pointer type and returns a string. 
- * The returned `char*` of *dataToString* must be dynamicaly allocated.
- * 
- * - ex: `char* intToString(int * integer)`
- * - ex: `char* Vector2ToString(Vector2 * v2)`
- * 
- * Memory is allocated, the return of this function must be freed later.
- */
-char* List_toString(List list, char* (*dataToString)(void *item)) {
-    
-    free(list->toString);
-
-    List info = ListCreate(char, NULL);
-    char info_begin[] = "List: ([ ";
-    char info_end[] = "], ";
-    char info_type_size[64];
-
-    char info_space = ' ';
-    int ib_len = strlen(info_begin);
-    List_pushArray(info, ib_len, info_begin);
-
-    if (list->size > 0) {
-        struct node * n = list->head;
-        do {
-            char* dataStr = dataToString(n->data);
-            List_pushArray(info, strlen(dataStr), dataStr);
-            List_pushBack(info, &info_space);
-            free(dataStr);
-        } while ((n = n->next));
-    }
-    List_pushArray(info, strlen(info_end), info_end);
-
-    sprintf(info_type_size, "type: %s, size: %li)", list->type_name, list->size);
-    List_pushArray(info, strlen(info_type_size), info_type_size);
-
-    list->toString = List_toArray(info);
-    ListDelete(info);
-
-    return list->toString;
-}
-#endif // LIST_DEBUG
 
 #endif // LIST_H
