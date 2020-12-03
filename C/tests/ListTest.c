@@ -1,5 +1,6 @@
 #define LIST_DEBUG
 #include "../List.h"
+#include <stdio.h>
 #include <time.h>
 
 void print(List list) {
@@ -21,7 +22,7 @@ int main(int argc, char const *argv[]) {
         rand() % 100
     };
 
-    List lista = ListCreate(int);
+    List lista = ListCreate(int, {});
     print(lista);
 
     // TEST: pushBack
@@ -66,8 +67,8 @@ int main(int argc, char const *argv[]) {
 
     // TEST: fromArray
     printf("\nTEST: fromArray\n");
-    ListDelete(lista);
-    lista = List_fromArray(int, 6, array);
+    ListDelete(&lista);
+    lista = ListCreate_from(int, array, 6);
     print(lista);
 
     // TEST: Resize
@@ -78,10 +79,10 @@ int main(int argc, char const *argv[]) {
 
     // TEST: At
     printf("\nTEST: At\n");
-    int at0 = *(int*)List_at(lista,  0);
-    int at1 = *(int*)List_at(lista,  1);
-    int at_1 = *(int*)List_at(lista, -1);
-    int at_2 = *(int*)List_at(lista, -2);
+    int at0 = List_at(int, lista,  0);
+    int at1 = List_at(int, lista,  1);
+    int at_1 = List_at(int, lista, -1);
+    int at_2 = List_at(int, lista, -2);
     printf("at\t0 -> %i\n", at0);
     printf("at\t1 -> %i\n", at1);
     printf("at\t-1 -> %i\n", at_1);
@@ -101,7 +102,7 @@ int main(int argc, char const *argv[]) {
     List_remove(lista2, 0);
     printf("copy(list2, list1) and remove(list2, 0)\n");
     print(lista2);
-    ListDelete(lista2);
+    ListDelete(&lista2);
     print(lista);
 
 
@@ -136,7 +137,7 @@ int main(int argc, char const *argv[]) {
         printf("%i ", arr[i]);
     printf("]\n");
     
-    ListDelete(lista);
+    ListDelete(&lista);
 
     printf("\nALL TESTS PASSED!\n");
     return 0;
