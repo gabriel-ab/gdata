@@ -30,26 +30,30 @@ struct list_node *_list_new_node(size_t size) {
 
 /* 
  * Free the given node conecting neighbors to each other
- * _node->data is **not** freed_
+ * and return the allocated data pointer
  */
-void _list_del_node(struct list_node *n) {
+void *_list_del_node(struct list_node *n) {
     if (n) {
         if (n->back) n->back->next = n->next;
         if (n->next) n->next->back = n->back;
+        void *data = n->data;
         free(n);
+        return data;
     }
 }
 
 /* 
  * Find the linked node by the given index.
  */
-struct list_node * _list_node_find(struct list_node * node, int index) {
-    if (index == 0 || index == -1)
-        return node;
-
-    _Bool reverse = index < 0;
-    struct list_node *next = reverse ? node->back : node->next;
-    return _list_node_find(next, index + (reverse ? 1 : -1));
+struct list_node * _list_find(struct list_node * node, int index) {
+    if (index < 0) {
+        while (++index && node)
+            node = node->back;
+    } else {
+        while (index-- && node)
+            node = node->next;
+    }
+    return node;
 }
 
 /* 
@@ -58,17 +62,14 @@ struct list_node * _list_node_find(struct list_node * node, int index) {
  * return: the node
  */
 struct list_node * _list_node_at(List list, int index) {
-    if (index >= 0)
-        return _list_node_find(list->head, index);
-    else
-        return _list_node_find(list->tail, index);
 #ifdef LIST_DEBUG
-    perror("LIST_DEBUG: Index out of the list!");
+    if (list->size < (size_t)(index < 0 ? -index-1 : index))
+        perror("LIST_DEBUG: Index out of the list!");
 #endif
-    return NULL;
+    return _list_find((index < 0) ? list->tail : list->head, index);
 }
 
-void * _list_at(List list, int index) {
+void * List_at(List list, int index) {
     return _list_node_at(list, index)->data;
 }
 
@@ -88,41 +89,36 @@ List _list_create(size_t data_size, size_t size, void * values) {
 void List_pushBack(List list, void * item) {
     struct list_node *new_node = _list_new_node(list->data_size);
 
-    if (list->size > 0) {
+    if (item) memcpy(new_node->data, item, list->data_size);
+
+    if (list->size++ > 0) {
         list->tail->next = new_node;
         new_node->back = list->tail;
         list->tail = new_node;
     }
     else list->head = list->tail = list->iterator = new_node;
-
-    memcpy(new_node->data, item, list->data_size);
-    list->size++;
 }
 
 // Push value in list's begin.
 void List_pushFront(List list, void * item) {
     struct list_node *new_node = _list_new_node(list->data_size);
 
-    if (list->size > 0) {
+    if (item) memcpy(new_node->data, item, list->data_size);
+
+    if (list->size++ > 0) {
         list->head->back = new_node;
         new_node->next = list->head;
         list->iterator = list->head = new_node;
     }
     else list->head = list->tail = list->iterator = new_node;
-
-    memcpy(new_node->data, item, list->data_size);
-    list->size++;
 }
 
 //Push value in the index especified
 void List_push(List list, int index, void * item) {
-
-    struct list_node *old_node = NULL;
-
     if (list->size == 0)
         return List_pushFront(list, item);
-    old_node = _list_node_at(list, index);
 
+    struct list_node *old_node = _list_node_at(list, index);
     if (old_node) {
         struct list_node *new_node = _list_new_node(list->data_size);
         if (new_node) {
@@ -146,9 +142,9 @@ void List_push(List list, int index, void * item) {
                     old_node->next->back = new_node;
                 old_node->next = new_node;
             }
-            memcpy(new_node->data, item, list->data_size);
-            list->size++;
         }
+        if (item) memcpy(new_node->data, item, list->data_size);
+        list->size++;
     }
 #ifdef LIST_DEBUG
     else perror("LIST_DEBUG: Index not found!");
@@ -158,28 +154,20 @@ void List_push(List list, int index, void * item) {
 
 // Retrieve the in the index specified
 void *List_pop(List list, int index) {
-    struct list_node * n = NULL;
-    if (list->size > 0) {
-        if (index == 0) {
-            n = list->head;
-            list->iterator = list->head = n->next;
-        } 
-        else if (index == -1) {
-            n = list->tail;
-            list->tail = n->back;
-        }
-        else n = _list_node_at(list, index);
-
-        if (n) {
-            list->size--;
-            void * data = n->data;
-            _list_del_node(n);
-            return data;
-        }
-    }
 #ifdef LIST_DEBUG
-    perror("LIST_DEBUG: List_pop(): List is empty");
+    if (list->size == 0)
+        perror("LIST_DEBUG: List_pop(): List is empty!");
 #endif
+    struct list_node * n = _list_node_at(list, index);
+    if (n) {
+        if (n == list->tail)
+            list->tail = n->back;
+        if (n == list->head)
+            list->iterator = list->head = n->next;
+
+        list->size--;
+        return _list_del_node(n);
+    }
     return NULL;
 }
 
@@ -238,7 +226,6 @@ void List_remove(List list, int index) {
 void List_clear(List list) {
     while (list->size > 0)
         List_remove(list, -1);
-    list->iterator = list->head = list->tail =NULL;
 }
 
 

@@ -65,10 +65,10 @@ int main(int argc, char const *argv[]) {
     }
     print(lista);
 
-    // TEST: fromArray
-    printf("\nTEST: fromArray\n");
+    // TEST: Create as array
+    printf("\nTEST: Create as array\n");
     ListDelete(&lista);
-    lista = ListCreate_from(int, array, 6);
+    lista = ListCreate_as(int, array, 6);
     print(lista);
 
     // TEST: Resize
@@ -79,14 +79,14 @@ int main(int argc, char const *argv[]) {
 
     // TEST: At
     printf("\nTEST: At\n");
-    int at0 = List_at(int, lista,  0);
-    int at1 = List_at(int, lista,  1);
-    int at_1 = List_at(int, lista, -1);
-    int at_2 = List_at(int, lista, -2);
-    printf("at\t0 -> %i\n", at0);
-    printf("at\t1 -> %i\n", at1);
-    printf("at\t-1 -> %i\n", at_1);
-    printf("at\t-2 -> %i\n", at_2);
+    int *at0 = List_at(lista,  0);
+    int *at1 = List_at(lista,  1);
+    int *at_1 = List_at(lista, -1);
+    int *at_2 = List_at(lista, -2);
+    printf("at\t0 -> %i\n", *at0);
+    printf("at\t1 -> %i\n", *at1);
+    printf("at\t-1 -> %i\n", *at_1);
+    printf("at\t-2 -> %i\n", *at_2);
     print(lista);
 
     // TEST: forEach

@@ -16,13 +16,13 @@ typedef struct string {
     size_t alloc_size;
 }*String;
 
-void String_rename(String str, const char* text);
-
-void String_append(String str, const char *text);
-
 String StringCreate(const char *string);
 
 void StringDelete(String *str);
+
+void String_rename(String str, const char* text);
+
+void String_append(String str, const char *text);
 
 Array String_split(String string, const char *pattern);
 

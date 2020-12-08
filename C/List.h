@@ -4,11 +4,13 @@
  * @author Gabriel-AB
  * https://github.com/Gabriel-AB
  * 
- * Define LIST_DEBUG before inclusion to receive error messages.
+ * Define LIST_DEBUG to receive error messages.
  */
 
 #pragma once
 #include <stdlib.h>
+
+// #define LIST_DEBUG
 
 struct list_node {
     struct list_node *next;
@@ -27,12 +29,6 @@ typedef struct list {
 
 
 // ====================== LIBRARY INTERNAL FUNCTIONS ====================== //
-/* 
- * Get data at index
- * if index is negative, searchs in reverse. 
- * -1 = last, 0 = first
- */
-void * _list_at(List list, int index);
 
 List _list_create(size_t data_size, size_t size, void * values);
 
@@ -81,13 +77,13 @@ void *List_pop(List list, int index);
 
 /* 
  * ### Delete the last node and return it's value.
- * you must cast to your type with `*(type*)`
+ * you must cast to your type with `(type*)`
  */
 void * List_popBack(List list);
 
 /* 
  * ### Delete the first node and return it's value.
- * you must cast to your type with `*(type*)`
+ * you must cast to your type with `(type*)`
  */
 void * List_popFront(List list);
 
@@ -102,14 +98,13 @@ void List_resize(List list, unsigned int new_size);
  * -1 = last, 0 = first
  * type: the same at list's creation
  */
-#define List_at(type, list, index) (*(type*)_list_at(list, index))
+void * List_at(List list, int index);
 
 /* 
  * ### return one data per time from the list, then resets
  * you must expect `NULL` as the end
  * 
- * Usage: 
- * - `for (type *data; data = List_forEach(list);) {}`
+ * Usage: `for (type *data; data = List_forEach(list);)`
  */
 void * List_forEach(List list);
 
@@ -120,7 +115,6 @@ List List_copy(List src);
 
 /* 
  * ### Remove the element of the given index
- * 
  */
 void List_remove(List list, int index);
 
@@ -133,6 +127,9 @@ void List_clear(List list);
 
 /* 
  * ### Concatenate a Array on list's tail
+ * 
+ * ex: `List_pushArray(list, 4, (double[]){1.0, 0.2, 3.4, 5.3});`
+ * ex: `List_pushArray(list, 6, array);`
  */
 List List_pushArray(List list, size_t num_elements, void * array);
 
@@ -144,13 +141,16 @@ List List_pushArray(List list, size_t num_elements, void * array);
 void * List_toArray(List list);
 
 
-#define ListCreate_from(type, array, array_size) _list_create(sizeof(type), array_size, array)
+/* 
+ * ### Create a list based on a existent array
+ */
+#define ListCreate_as(type, array, array_size) _list_create(sizeof(type), array_size, array)
 
 /* 
- * ### Create a list based on a array
+ * ### Create a list based on a array literal
  * Args:
  * * type: type of your list. ex: int, float, YourType...
- * * array: literal in `{...}`. use `ListCreate_from()` for declared arrays
+ * * array: literal in `{...}`. use `ListCreate_as()` for declared arrays
  * 
  * Obsevations:
  * * You must call `ListDelete()` to free alocated memory

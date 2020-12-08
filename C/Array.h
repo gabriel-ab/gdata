@@ -45,9 +45,14 @@ void Array_resize(Array array, size_t new_size);
 void * Array_forEach(Array array);
 
 /* 
+ * ### Set all elements in the array to 0
+ * it tries to use valueDestructor if it was setted
+ */
+void Array_clear(Array array);
+/* 
  * To get or set values
  * 
- * Usage: `Array_at(type, array)[index]`
+ * Usage: `Array_at(type, array, index)`
  * 
  * Ex: `Array_at(double, array, 2) = 0.2;`
  * Ex: `int var = Array_at(int, array, 1);`

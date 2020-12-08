@@ -44,6 +44,14 @@ void * Array_forEach(Array array) {
     return NULL;
 }
 
+// Set all values to 0
+void Array_clear(Array array) {
+    if (array->valueDestructor)
+        for (void *data; data = Array_forEach(array);)
+            array->valueDestructor(data);
+    memset(array->data, 0, array->size * array->data_size);
+}
+
 /* 
  * ### Destructor of Array
  * Args:
@@ -51,8 +59,6 @@ void * Array_forEach(Array array) {
  * obs: `valueDestructor` must take data by reference.
  */
 void ArrayDelete(Array *array) {
-    if ((*array)->valueDestructor)
-        for (void *data; data = Array_forEach(*array);)
-            (*array)->valueDestructor(data);
+    Array_clear(*array);
     free(*array);
 }
