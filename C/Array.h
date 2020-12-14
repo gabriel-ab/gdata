@@ -3,85 +3,79 @@
  * 
  * @author: Gabriel-AB
  * https://github.com/Gabriel-AB/
+ * 
+ * Usage:
+ *   call `USING_ARRAY_OF(type)` and use `typeArray`
+ * 
+ *   Ex: 
+ *      USING_ARRAY_OF(int);
+ *      intArray array = ArrayCreate(int, {1,2,3});
+ *
+ *   Obs:
+ *     > You must call `free(array)` later
+ * 
+ *     > if needed, use sizeof(struct array) since `typeArray` is a pointer
  */
-
 #pragma once
 #include <stdlib.h>
 
-typedef struct array {
-    void * data;
-    size_t size;
-    size_t iterator;
-    size_t data_size;
-    void (*valueDestructor)(void *value);
-} *Array;
+/* 
+ * ### Declares a array of type
+ * The type `typeArray` is will be avaliable to you
+ */
+#define USING_ARRAY_OF(type)\
+typedef struct {\
+    size_t size;\
+    type * at;\
+} *type##Array
 
+// Generic Array
+struct array {
+    size_t size;
+    void * at;
+};
 
 // ====================== LIBRARY INTERNAL FUNCTIONS ====================== //
 /* 
  * ### Create a new Array with values
- * Args:
- * * data_size: size of data in bytes
- * * size: quantity of elements in the array
- * * values: a vector with the values to insert in the array,
- *   pass `0` or `NULL` to set all values to 0
  */
-Array _array_create(size_t data_size, size_t size, void * values);
+struct array * _array_alloc(size_t data_size, size_t size, void * values);
+
+/* 
+ * ### Reallocates an existing array
+ */
+struct array * _array_realloc(struct array *array, size_t data_size, size_t new_size);
 
 
 // =========================== PUBLIC FUNCTIONS =========================== //
-/* 
- * ### Resizes and reallocates memory to the array
- */
-void Array_resize(Array array, size_t new_size);
-
-/* 
- * ### return one data per time in the array, then resets.
- * You must expect `NULL` as the end
- * 
- * Usage: 
- * - `for (type *data; data = Array_forEach(list);) {}`
- */
-void * Array_forEach(Array array);
-
-/* 
- * ### Set all elements in the array to 0
- * it tries to use valueDestructor if it was setted
- */
-void Array_clear(Array array);
-/* 
- * To get or set values
- * 
- * Usage: `Array_at(type, array, index)`
- * 
- * Ex: `Array_at(double, array, 2) = 0.2;`
- * Ex: `int var = Array_at(int, array, 1);`
- */
-#define Array_at(type, array, index) ((type*)array->data)[index]
 
 /*
- * ### Create a new empty Array
- * Args:
- * * type: int, char, YourType...
- * * size: number of elements
+ * ### Create a new Array with zeros
+ * 
+ * Note: Call `USING_ARRAY_OF(type)` before using this macro
+ * Obs: you must call `free(array)` later
  */
-#define ArrayCreateEmpty(type, size) _array_create(sizeof(type), size, 0)
+#define ArrayAllocate(type, size)\
+    (type##Array)_array_alloc(sizeof(type), size, 0)
 
 /* 
- * ### Create a new Array
- * Args:
- * * type: int, char, YourType...
- * * array: a array literal {}
+ * ### Create a new Array based on a array literal
+ * 
  * Ex: ArrayCreate(int, {0,2,4})
+ * Ex: ArrayCreate(float, {})
+ * 
+ * Note: Call `USING_ARRAY_OF(type)` before using this macro
+ * Obs: you must call `free(array)` later
  */
 #define ArrayCreate(type, array...) ({\
     type arr[] = array;\
-    _array_create(sizeof(type), sizeof(arr)/sizeof(type), arr);\
+    (type##Array)_array_alloc(sizeof(type), sizeof(arr)/sizeof(type), arr);\
 })
 
+
 /* 
- * ### Destructor of Array
- * Args:
- * * `array` is a pointer to your array
+ * ### Resize a array and return the new array
+ * return: the new array
  */
-void ArrayDelete(Array *array);
+#define ArrayResize(old_array, new_size)\
+    (__typeof__(old_array))_array_realloc((struct array*)old_array, sizeof(__typeof__(old_array->at[0])), new_size)

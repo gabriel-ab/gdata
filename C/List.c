@@ -33,13 +33,11 @@ struct list_node *_list_new_node(size_t size) {
  * and return the allocated data pointer
  */
 void *_list_del_node(struct list_node *n) {
-    if (n) {
-        if (n->back) n->back->next = n->next;
-        if (n->next) n->next->back = n->back;
-        void *data = n->data;
-        free(n);
-        return data;
-    }
+    if (n->back) n->back->next = n->next;
+    if (n->next) n->next->back = n->back;
+    void *data = n->data;
+    free(n);
+    return data;
 }
 
 /* 
@@ -217,10 +215,32 @@ List List_copy(List src) {
 }
 
 void List_remove(List list, int index) {
+    void * value = List_pop(list, index);
     if (list->valueDestructor)
-        list->valueDestructor(List_pop(list, index));
+        list->valueDestructor(value);
     else
-        free(List_pop(list, index));
+        free(value);
+}
+
+void List_removeCurrent(List list) {
+    if (list->iterator == NULL)
+        return List_remove(list, -1);
+
+    struct list_node * current = list->iterator->back;
+    if (current) {
+        if (current == list->head)
+            return List_remove(list, 0);
+        
+        void * value = _list_del_node(current);
+        if (list->valueDestructor)
+            list->valueDestructor(value);
+        else
+            free(value);
+        list->size--;
+    }
+#ifdef LIST_DEBUG    
+        else perror("LIST_DEBUG: not in a forEach loop!");
+#endif
 }
 
 void List_clear(List list) {

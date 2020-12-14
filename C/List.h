@@ -119,6 +119,12 @@ List List_copy(List src);
 void List_remove(List list, int index);
 
 /* 
+ * ### Remove the current element in a List_forEach()
+ * Removes at iterator position 
+ */
+void List_removeCurrent(List list);
+
+/* 
  * ### Deletes all nodes and clear the list
  */
 void List_clear(List list);
@@ -144,13 +150,13 @@ void * List_toArray(List list);
 /* 
  * ### Create a list based on a existent array
  */
-#define ListCreate_as(type, array, array_size) _list_create(sizeof(type), array_size, array)
+#define ListCreate_from(type, array, array_size) _list_create(sizeof(type), array_size, array)
 
 /* 
  * ### Create a list based on a array literal
  * Args:
  * * type: type of your list. ex: int, float, YourType...
- * * array: literal in `{...}`. use `ListCreate_as()` for declared arrays
+ * * array: literal in `{...}`. use `ListCreate_from()` for declared arrays
  * 
  * Obsevations:
  * * You must call `ListDelete()` to free alocated memory
