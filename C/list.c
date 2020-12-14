@@ -6,7 +6,7 @@
  * 
  */
 
-#include "List.h"
+#include "list.h"
 #include <memory.h>
 
 #ifdef LIST_DEBUG

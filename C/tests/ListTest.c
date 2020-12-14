@@ -1,5 +1,5 @@
 #define LIST_DEBUG
-#include "../List.h"
+#include "../list.h"
 #include <stdio.h>
 #include <time.h>
 
@@ -68,7 +68,7 @@ int main(int argc, char const *argv[]) {
     // TEST: Create as array
     printf("\nTEST: Create as array\n");
     ListDelete(&lista);
-    lista = ListCreate_as(int, array, 6);
+    lista = ListCreate_from(array, 6);
     print(lista);
 
     // TEST: Resize

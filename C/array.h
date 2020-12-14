@@ -78,4 +78,4 @@ struct array * _array_realloc(struct array *array, size_t data_size, size_t new_
  * return: the new array
  */
 #define ArrayResize(old_array, new_size)\
-    (__typeof__(old_array))_array_realloc((struct array*)old_array, sizeof(__typeof__(old_array->at[0])), new_size)
+    (__typeof__(old_array))_array_realloc((struct array*)old_array, sizeof(*(old_array->at))), new_size)

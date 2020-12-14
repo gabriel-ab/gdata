@@ -150,7 +150,8 @@ void * List_toArray(List list);
 /* 
  * ### Create a list based on a existent array
  */
-#define ListCreate_from(type, array, array_size) _list_create(sizeof(type), array_size, array)
+#define ListCreate_from(array, array_size)\
+    _list_create(sizeof(*array), array_size, array)
 
 /* 
  * ### Create a list based on a array literal

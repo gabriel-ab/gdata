@@ -1,4 +1,4 @@
-#include "Array.h"
+#include "array.h"
 #include <string.h>
 
 // ====================== LIBRARY INTERNAL FUNCTIONS ====================== //
