@@ -1,5 +1,8 @@
 #include "array.h"
+#include "autofree.h"
 #include <string.h>
+
+
 
 // ====================== LIBRARY INTERNAL FUNCTIONS ====================== //
 

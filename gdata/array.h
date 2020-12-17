@@ -1,15 +1,16 @@
 /* 
- * Generic Heap Allocated Array Library v0.1
+ * Heap Allocated Array Library v1.0
+ * Do not free, it will be freed automatically
  * 
  * @author: Gabriel-AB
  * https://github.com/Gabriel-AB/
  * 
  * Usage:
- *   call `ARRAY_DECLARE(type)` before all the code 
+ *   call `ArrayDeclare(type)` before all the code 
  *   and use `typeArray` as your a array of type
  * 
  *   Ex: 
- *      ARRAY_DECLARE(int);
+ *      ArrayDeclare(int);
  *      intArray array1 = ArrayCreate(int, {1,2,3});
  *      intArray array2 = ArrayAllocate(int, 10);
  *
@@ -25,7 +26,7 @@
  * ### Declares a array of type
  * The type `typeArray` is will be avaliable to you
  */
-#define ARRAY_DECLARE(type)\
+#define ArrayDeclare(type)\
 typedef struct {\
     size_t size;\
     type at[];\
@@ -49,7 +50,7 @@ void * _array_realloc(void *array, size_t data_size, size_t new_size);
 /*
  * ### Create a new Array with zeros
  * 
- * Note: Call `ARRAY_DECLARE(type)` before using this macro
+ * Note: Call `ArrayDeclare(type)` before using this macro
  * Obs: you must call `free(array)` later
  */
 #define ArrayAllocate(type, size)\
@@ -61,7 +62,7 @@ void * _array_realloc(void *array, size_t data_size, size_t new_size);
  * Ex: ArrayCreate(int, {0,2,4})
  * Ex: ArrayCreate(float, {})
  * 
- * Note: Call `ARRAY_DECLARE(type)` before using this macro
+ * Note: Call `ArrayDeclare(type)` before using this macro
  * Obs: you must call `free(array)` later
  */
 #define ArrayCreate(type, array...) ({\
@@ -75,4 +76,4 @@ void * _array_realloc(void *array, size_t data_size, size_t new_size);
  * return: the new array
  */
 #define ArrayResize(old_array, new_size)\
-    _array_realloc(old_array, sizeof(*old_array->at)), new_size)
+    _array_realloc(old_array, sizeof(*old_array->at), new_size)
