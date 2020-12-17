@@ -5,18 +5,16 @@
 
 // Create a new Array with values, if values are passed.
 // if value == NULL or 0, calloc already sets every value to 0
-struct array * _array_alloc(size_t data_size, size_t size, void * values) {
-    struct array *array = calloc(1,sizeof(struct array) + data_size*size);
-    array->size = size;
-    array->at = array + sizeof(struct array);
-
+void * _array_alloc(size_t data_size, size_t size, void * values) {
+    size_t * array = calloc(1, sizeof(size_t) + data_size*size);
+    *array = size;
     if (values)
-        memcpy(array->at, values, data_size*size);
-    return array;
+        memcpy(array + 1, values, data_size*size);
+    return (void*)array;
 }
 
-struct array * _array_realloc(struct array *array, size_t data_size, size_t new_size) {
-    array = realloc(array, sizeof(struct array)+data_size*new_size);
-    array->size = new_size;
+void * _array_realloc(void *array, size_t data_size, size_t new_size) {
+    array = realloc(array, sizeof(size_t) + data_size*new_size);
+    *(size_t*)array = new_size;
     return array;
 }
