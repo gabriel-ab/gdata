@@ -57,10 +57,10 @@ void * _array_realloc(void *array, size_t data_size, size_t new_size);
     _array_alloc(sizeof(type), size, 0)
 
 /* 
- * ### Create a new Array based on a array literal
+ * ### Create a new Array based on a array literal and assign values
  * 
  * Ex: ArrayCreate(int, {0,2,4})
- * Ex: ArrayCreate(float, {})
+ * Ex: ArrayCreate(float, {2.3f, 0.1f})
  * 
  * Note: Call `ArrayDeclare(type)` before using this macro
  * Obs: you must call `free(array)` later
