@@ -25,6 +25,11 @@
 /* 
  * ### Declares a array of type
  * The type `typeArray` is will be avaliable to you
+ * 
+ * if you want to use a type like `unsigned int`, make an alias
+ * ex: 
+ * > typedef unsigned int uint; 
+ * > ArrayDeclare(uint);
  */
 #define ArrayDeclare(type)\
 typedef struct {\
@@ -77,3 +82,8 @@ void * _array_realloc(void *array, size_t data_size, size_t new_size);
  */
 #define ArrayResize(old_array, new_size)\
     _array_realloc(old_array, sizeof(*old_array->at), new_size)
+
+// Declaring basic data arrays
+ArrayDeclare(int);
+ArrayDeclare(float);
+ArrayDeclare(double);

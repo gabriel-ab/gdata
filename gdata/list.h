@@ -1,5 +1,5 @@
 /* 
- * Generic double linked List Library v1.4
+ * Generic double linked List Library v1.5
  * 
  * @author Gabriel-AB
  * https://github.com/Gabriel-AB
@@ -15,16 +15,17 @@
 struct list_node {
     struct list_node *next;
     struct list_node *back;
-    void *data;
+    char data[];
 };
 
 typedef struct list {
     struct list_node *head;
     struct list_node *tail;
-    struct list_node *iterator;
+    void (*valueDestructor)(void* value);
     size_t size;
+
+    struct list_node *iterator;
     const size_t data_size;
-    void (*valueDestructor)(void *value);
 } *List;
 
 
@@ -71,19 +72,19 @@ void List_push(List list, int index, void * item);
 /*
  * ### Retrieve the in the index specified
  * if `index` is negative, searchs in reverse. 
- * The data is alocated, you must free later
+ * cast to any type with `*(type*)`
  */
 void *List_pop(List list, int index);
 
 /* 
  * ### Delete the last node and return it's value.
- * you must cast to your type with `(type*)`
+ * cast to any type with `*(type*)`
  */
 void * List_popBack(List list);
 
 /* 
  * ### Delete the first node and return it's value.
- * you must cast to your type with `(type*)`
+ * cast to any type with `*(type*)`
  */
 void * List_popFront(List list);
 
@@ -96,7 +97,7 @@ void List_resize(List list, unsigned int new_size);
  * ### Find a given index of list and return the data pointer
  * if index is negative, searchs in reverse. 
  * -1 = last, 0 = first
- * type: the same at list's creation
+ * cast to any type with `*(type*)`
  */
 void * List_at(List list, int index);
 
@@ -122,7 +123,7 @@ void List_remove(List list, int index);
  * ### Remove the current element in a List_forEach()
  * Removes at iterator position 
  */
-void List_removeCurrent(List list);
+void List_removeIterator(List list);
 
 /* 
  * ### Deletes all nodes and clear the list
@@ -141,7 +142,7 @@ List List_pushArray(List list, size_t num_elements, void * array);
 
 /* 
  * ### convert to a array
- * you must cast to your type with `(type*)`
+ * you must cast to any type with `(type*)`
  * memory is alocated, you must free after using!
  */
 void * List_toArray(List list);
@@ -150,14 +151,14 @@ void * List_toArray(List list);
 /* 
  * ### Create a list based on a existent array
  */
-#define ListCreate_from(array, array_size)\
+#define ListCreate_fromArray(array, array_size)\
     _list_create(sizeof(*array), array_size, array)
 
 /* 
  * ### Create a list based on a array literal
  * Args:
  * * type: type of your list. ex: int, float, YourType...
- * * array: literal in `{...}`. use `ListCreate_from()` for declared arrays
+ * * array: literal in `{...}`. use `ListCreate_fromArray()` for declared arrays
  * 
  * Obsevations:
  * * You must call `ListDelete()` to free alocated memory

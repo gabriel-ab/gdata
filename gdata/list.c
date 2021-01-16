@@ -7,23 +7,37 @@
  */
 
 #include "list.h"
-#include <memory.h>
+#include <string.h>
 
 #ifdef LIST_DEBUG
 # include <stdio.h>
 #endif
 
+
+// This variable keep the returned value from List_pop()
+// allocated until List_pop() is called again
+static void* returned;
+
 // ====================== LIBRARY INTERNAL FUNCTIONS ====================== //
+
+__attribute__((constructor))
+static void list_init() {
+    returned = malloc(1); //_list_del_node() aways free 'returned'
+}
+
+__attribute__((destructor))
+static void list_close() {
+    free(returned);
+}
+
 /* 
  * Allocate a list_node and return the pointer
  * obs: size in bytes
  */
 struct list_node *_list_new_node(size_t size) {
-    struct list_node *ptr = calloc(1,sizeof(struct list_node));
-    if (ptr)
-        ptr->data = calloc(1,size);
+    struct list_node *ptr = calloc(1,sizeof(struct list_node) + size);
 #ifdef LIST_DEBUG
-    else perror("LIST_DEBUG: Failed to create node");
+    if (!ptr) perror("LIST_DEBUG: Failed to create node");
 #endif
     return ptr;
 }
@@ -35,9 +49,9 @@ struct list_node *_list_new_node(size_t size) {
 void *_list_del_node(struct list_node *n) {
     if (n->back) n->back->next = n->next;
     if (n->next) n->next->back = n->back;
-    void *data = n->data;
-    free(n);
-    return data;
+    free(returned);
+    returned = n;
+    return n->data;
 }
 
 /* 
@@ -218,11 +232,9 @@ void List_remove(List list, int index) {
     void * value = List_pop(list, index);
     if (list->valueDestructor)
         list->valueDestructor(value);
-    else
-        free(value);
 }
 
-void List_removeCurrent(List list) {
+void List_removeIterator(List list) {
     if (list->iterator == NULL)
         return List_remove(list, -1);
 
@@ -234,8 +246,6 @@ void List_removeCurrent(List list) {
         void * value = _list_del_node(current);
         if (list->valueDestructor)
             list->valueDestructor(value);
-        else
-            free(value);
         list->size--;
     }
 #ifdef LIST_DEBUG    

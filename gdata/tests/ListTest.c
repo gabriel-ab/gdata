@@ -56,10 +56,8 @@ int main(int argc, char const *argv[]) {
     printf("\nTEST: popFront\n");
     for (size_t i = 0; i < 3; i++) {
         int *element = List_popFront(lista);
-        if (element != NULL) {
+        if (element != NULL)
             printf("popfront() -> %i\n", *element);
-            free(element);
-        }
         else 
             printf("null pointer\n");
     }
@@ -68,7 +66,7 @@ int main(int argc, char const *argv[]) {
     // TEST: Create as array
     printf("\nTEST: Create as array\n");
     ListDelete(&lista);
-    lista = ListCreate_from(array, 6);
+    lista = ListCreate_fromArray(array, 6);
     print(lista);
 
     // TEST: Resize
@@ -79,14 +77,14 @@ int main(int argc, char const *argv[]) {
 
     // TEST: At
     printf("\nTEST: At\n");
-    int *at0 = List_at(lista,  0);
-    int *at1 = List_at(lista,  1);
-    int *at_1 = List_at(lista, -1);
-    int *at_2 = List_at(lista, -2);
-    printf("at\t0 -> %i\n", *at0);
-    printf("at\t1 -> %i\n", *at1);
-    printf("at\t-1 -> %i\n", *at_1);
-    printf("at\t-2 -> %i\n", *at_2);
+    int at0 = *(int*)List_at(lista,  0);
+    int at1 = *(int*)List_at(lista,  1);
+    int at_1 = *(int*)List_at(lista, -1);
+    int at_2 = *(int*)List_at(lista, -2);
+    printf("at( 0) -> %i\n", at0);
+    printf("at( 1) -> %i\n", at1);
+    printf("at(-1) -> %i\n", at_1);
+    printf("at(-2) -> %i\n", at_2);
     print(lista);
 
     // TEST: forEach
@@ -114,9 +112,9 @@ int main(int argc, char const *argv[]) {
 
     // TEST: pop
     printf("\nTEST: pop\n");
-    int *pop = (int*)List_pop(lista, -1);
-    printf("pop(-1) -> %i\n", *pop);
-    print(lista);free(pop);
+    int pop = *(int*)List_pop(lista, -1);
+    printf("pop(-1) -> %i\n", pop);
+    print(lista);
     
     // TEST: clear
     printf("\nTEST: clear\n");

@@ -1,6 +1,15 @@
 #include "stack.h"
 #include <string.h>
 
+static void* returned;
+
+__attribute__((constructor))
+void stack_init() {
+    // allocated to free at first call of _stack_pop()
+    // this removes an 'if' check
+    returned = malloc(1);
+}
+
 Stack _stack_create(size_t data_size, size_t size, void *data) {
     Stack stack = malloc(sizeof(struct stack));
     *(size_t*)&stack->data_size = data_size;
@@ -19,35 +28,26 @@ void _stack_push(Stack stack, void *data) {
     for (size_t i = 0; i < stack->data_size; i++)
         node->data[i] = ((char*)data)[i];
 
-    node->next = stack->head;
-    stack->head = node;
+    node->next = stack->last;
+    stack->last = node;
     stack->size++;
 }
 
 /* 
  * ### Pop the head
+ * free the variable returned before the reattibution
  */
-struct stack_node* _stack_pop(Stack stack) {
-    struct stack_node* node = stack->head;
-    stack->head = node->next;
+void* _stack_pop(Stack stack) {
+    struct stack_node* node = stack->last;
+    stack->last = node->next;
     stack->size--;
-    return node;
+    free(returned);
+    returned = node;
+    return node->data;
 }
 
 void StackDelete(Stack stack) {
     while (stack->size)
-        free(_stack_pop(stack));
+        _stack_pop(stack);
     free(stack);
-}
-
-int _stack_find(Stack stack, void *data) {
-    struct stack_node* node = stack->head;
-    int i = stack->size -1;
-    while(node) {
-        if (memcmp(node->data, data, stack->data_size) == 0)
-            return i;
-        node = node->next;
-        i--;
-    }
-    return -1;
 }
