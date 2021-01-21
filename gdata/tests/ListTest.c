@@ -65,7 +65,7 @@ int main(int argc, char const *argv[]) {
 
     // TEST: Create as array
     printf("\nTEST: Create as array\n");
-    ListDelete(&lista);
+    list_delete(&lista);
     lista = ListCreate_fromArray(array, 6);
     print(lista);
 
@@ -100,7 +100,7 @@ int main(int argc, char const *argv[]) {
     List_remove(lista2, 0);
     printf("copy(list2, list1) and remove(list2, 0)\n");
     print(lista2);
-    ListDelete(&lista2);
+    list_delete(&lista2);
     print(lista);
 
 
@@ -135,7 +135,7 @@ int main(int argc, char const *argv[]) {
         printf("%i ", arr[i]);
     printf("]\n");
     
-    ListDelete(&lista);
+    list_delete(&lista);
 
     printf("\nALL TESTS PASSED!\n");
     return 0;

@@ -14,8 +14,8 @@
 #endif
 
 
-// This variable keep the returned value from List_pop()
-// allocated until List_pop() is called again
+// This variable keep the returned value from list_pop()
+// allocated until list_pop() is called again
 static void* returned;
 
 // ====================== LIBRARY INTERNAL FUNCTIONS ====================== //
@@ -81,7 +81,7 @@ struct list_node * _list_node_at(List list, int index) {
     return _list_find((index < 0) ? list->tail : list->head, index);
 }
 
-void * List_at(List list, int index) {
+void * list_at(List list, int index) {
     return _list_node_at(list, index)->data;
 }
 
@@ -90,7 +90,7 @@ List _list_create(size_t data_size, size_t size, void * values) {
     List list = calloc(1,sizeof(struct list));
     *(size_t*)&list->data_size = data_size;
     if (values)
-        List_pushArray(list, size, values);
+        list_push_array(list, size, values);
     return list;
 }
 
@@ -98,7 +98,7 @@ List _list_create(size_t data_size, size_t size, void * values) {
 // =========================== PUBLIC FUNCTIONS =========================== //
 
 // Push value in list's end.
-void List_pushBack(List list, void * item) {
+void list_push_back(List list, void * item) {
     struct list_node *new_node = _list_new_node(list->data_size);
 
     if (item) memcpy(new_node->data, item, list->data_size);
@@ -112,7 +112,7 @@ void List_pushBack(List list, void * item) {
 }
 
 // Push value in list's begin.
-void List_pushFront(List list, void * item) {
+void list_push_front(List list, void * item) {
     struct list_node *new_node = _list_new_node(list->data_size);
 
     if (item) memcpy(new_node->data, item, list->data_size);
@@ -126,9 +126,9 @@ void List_pushFront(List list, void * item) {
 }
 
 //Push value in the index especified
-void List_push(List list, int index, void * item) {
+void list_push(List list, int index, void * item) {
     if (list->size == 0)
-        return List_pushFront(list, item);
+        return list_push_front(list, item);
 
     struct list_node *old_node = _list_node_at(list, index);
     if (old_node) {
@@ -165,10 +165,10 @@ void List_push(List list, int index, void * item) {
 }
 
 // Retrieve the in the index specified
-void *List_pop(List list, int index) {
+void *list_pop(List list, int index) {
 #ifdef LIST_DEBUG
     if (list->size == 0)
-        perror("LIST_DEBUG: List_pop(): List is empty!");
+        perror("LIST_DEBUG: list_pop(): List is empty!");
 #endif
     struct list_node * n = _list_node_at(list, index);
     if (n) {
@@ -184,33 +184,33 @@ void *List_pop(List list, int index) {
 }
 
 // Delete the last node and return it's value.
-void * List_popBack(List list) {
-    return List_pop(list, -1);
+void * list_pop_back(List list) {
+    return list_pop(list, -1);
 }
 
 // Delete the first node and return it's value.
-void * List_popFront(List list) {
-    return List_pop(list, 0);
+void * list_pop_front(List list) {
+    return list_pop(list, 0);
 }
 
 // Resize a list allocating new memory,
-void List_resize(List list, unsigned int new_size) {
+void list_resize(List list, unsigned int new_size) {
     if (list->size < new_size) {
         int count = new_size -list->size;
         for (int i = 0; i < count; i++) {
             void * item = calloc(1,list->data_size);
-            List_pushBack(list, item);
+            list_push_back(list, item);
         }
             
     } else {
         int count = list->size -new_size;
         for (int i = 0; i < count; i++)
-            List_remove(list, -1);
+            list_remove(list, -1);
     }
 }
 
 // Return one data per time from the list, then resets
-void * List_forEach(List list) {
+void * list_for_each(List list) {
     if (list->iterator) {
         void * data = list->iterator->data;
         list->iterator = list->iterator->next;
@@ -221,27 +221,27 @@ void * List_forEach(List list) {
 }
 
 // Returns a copy of `src`
-List List_copy(List src) {
+List list_copy(List src) {
     List dst = _list_create(src->data_size, 0, 0);
-    for (void *data; data = List_forEach(src);)
-        List_pushBack(dst, data);
+    for (void *data; (data = list_for_each(src));)
+        list_push_back(dst, data);
     return dst;
 }
 
-void List_remove(List list, int index) {
-    void * value = List_pop(list, index);
+void list_remove(List list, int index) {
+    void * value = list_pop(list, index);
     if (list->valueDestructor)
         list->valueDestructor(value);
 }
 
-void List_removeIterator(List list) {
+void list_remove_iter(List list) {
     if (list->iterator == NULL)
-        return List_remove(list, -1);
+        return list_remove(list, -1);
 
     struct list_node * current = list->iterator->back;
     if (current) {
         if (current == list->head)
-            return List_remove(list, 0);
+            return list_remove(list, 0);
         
         void * value = _list_del_node(current);
         if (list->valueDestructor)
@@ -253,25 +253,25 @@ void List_removeIterator(List list) {
 #endif
 }
 
-void List_clear(List list) {
+void list_clear(List list) {
     while (list->size > 0)
-        List_remove(list, -1);
+        list_remove(list, -1);
 }
 
 
 // # Array related functions
 
-List List_pushArray(List list, size_t num_elements, void * array) {
+List list_push_array(List list, size_t num_elements, void * array) {
     for (size_t i = 0; i < num_elements; i++) {
         // jumping `i` bytes
         void * array_element = array + i*list->data_size;
-        List_pushBack(list, array_element);
+        list_push_back(list, array_element);
     }
     return list;
 }
 
 // convert to a array
-void * List_toArray(List list) {
+void * list_to_array(List list) {
     void * array = calloc(list->size, list->data_size);
     struct list_node *n = list->head;
     for (size_t i = 0; i < list->size; i++) {
@@ -282,7 +282,7 @@ void * List_toArray(List list) {
     return array;
 }
 
-void ListDelete(List *list) {
-    List_clear(*list);
+void list_delete(List *list) {
+    list_clear(*list);
     free(*list);
 }
