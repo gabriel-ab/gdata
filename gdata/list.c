@@ -263,7 +263,6 @@ void list_delete(List list) {
 }
 
 List list_sublist(List list, unsigned int begin, unsigned int end) {
-    assert(begin <= end);
     List result = list_copy(list);
     end = list->size - end;
     while (begin--)
