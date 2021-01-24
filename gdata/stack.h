@@ -1,5 +1,5 @@
 /* 
- * Generic linked Stack Library v1.1
+ * Generic linked Stack Library v1.2
  * 
  * @author Gabriel-AB
  * https://github.com/Gabriel-AB
@@ -14,15 +14,18 @@ struct stack_node {
 };
 
 typedef struct stack {
-    struct stack_node *last;
-    const size_t data_size;
+    struct stack_node *head;
     size_t size;
+    struct {
+        struct stack_node *pop;
+        const size_t data_size;
+    } internal;
 } *Stack;
 
 
 Stack _stack_create(size_t data_size, size_t size, void *data);
 
-/* ### Creates a new Stack and attribute some values
+/* ### Creates a new Stack and attribute some values if passed
  * pass values separated by comma (,)
  * ex:
  *   stack_create(float)
@@ -47,7 +50,10 @@ void stack_delete(Stack stack);
 void stack_push(Stack stack, void *data);
 
 /* ### Pop the last item from the stack
- * 
- * `type` is the type of data you expect to receive
+ * aways deference it
+ * ex: `int value = *(int*)stack_pop(stack);`
  */
 void* stack_pop(Stack stack);
+
+// ### Remove all elements
+void stack_clear(Stack stack);

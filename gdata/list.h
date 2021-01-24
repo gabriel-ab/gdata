@@ -19,13 +19,14 @@ struct list_node {
 };
 
 typedef struct list {
-    struct list_node *head;
-    struct list_node *tail;
-    void (*valueDestructor)(void* value);
+    struct list_node* head;
+    struct list_node* tail;
     size_t size;
-
-    struct list_node *iterator;
-    const size_t data_size;
+    struct {
+        struct list_node* iterator;
+        struct list_node* pop;
+        const size_t data_size;
+    } internal;
 } *List;
 
 
@@ -88,9 +89,7 @@ void * list_pop_back(List list);
  */
 void * list_pop_front(List list);
 
-/* 
- * ### Resize a list allocating new memory,
- */
+// ### Resize a list allocating new memory,
 void list_resize(List list, unsigned int new_size);
 
 /* 
@@ -109,14 +108,14 @@ void * list_at(List list, int index);
  */
 void * list_for_each(List list);
 
-/* 
- * ### Copy all content of src list
- */
+
+// ### Copy all content of src list
 List list_copy(List src);
 
-/* 
- * ### Remove the element of the given index
- */
+// ### Create a sub list using the passed interval
+List list_sublist(List list, unsigned int begin, unsigned int end);
+
+// ### Remove the element of the given index
 void list_remove(List list, int index);
 
 /* 
@@ -141,11 +140,10 @@ void list_clear(List list);
 List list_push_array(List list, size_t num_elements, void * array);
 
 /* 
- * ### convert to a array
- * you must cast to any type with `(type*)`
- * memory is alocated, you must free after using!
+ * ### Copy values to a array
+ * be sure to have suficient space in the array
  */
-void * list_to_array(List list);
+void list_to_array(List list, void* array);
 
 /* 
  * ### Create a list and push values if passed
@@ -159,11 +157,6 @@ void * list_to_array(List list);
  * 
  * Obsevations:
  * * You must call `list_delete()` to free alocated memory
- * 
- * * `valueDestructor` will be called when removing, cleaning or 
- *   deleting the list, set if you need to free allocated memory 
- *   holded by your data.
- *   Ex: `myList->valueDestructor = MyDestructor;`
  */
 #define list_create(type, values...) ({\
     type a[] = {values};\
@@ -174,4 +167,4 @@ void * list_to_array(List list);
  * ### Destructor 
  * Deletes a Created List
  */
-void list_delete(List *list);
+void list_delete(List list);

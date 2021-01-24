@@ -6,13 +6,13 @@
  * https://github.com/Gabriel-AB/
  * 
  * Usage:
- *   call `ArrayDeclare(type)` before all the code 
+ *   call `array_declare(type)` before all the code 
  *   and use `typeArray` as your a array of type
  * 
  *   Ex: 
- *      ArrayDeclare(int);
- *      intArray array1 = ArrayCreate(int, {1,2,3});
- *      intArray array2 = ArrayAllocate(int, 10);
+ *      array_declare(int);
+ *      intArray array1 = array_create(int, {1,2,3});
+ *      intArray array2 = array_allocate(int, 10);
  *
  *   Obs:
  *     > You must call `free(array)` later
@@ -27,9 +27,9 @@
  * if you want to use a type like `unsigned int`, make an alias
  * ex: 
  * > typedef unsigned int uint; 
- * > ArrayDeclare(uint);
+ * > array_declare(uint);
  */
-#define ArrayDeclare(type)\
+#define array_declare(type)\
 typedef struct {\
     size_t size;\
     type at[];\
@@ -53,10 +53,10 @@ void _array_append(void* a, void* b, size_t data_size);
 
 /* ### Create a new Array with zeros
  * 
- * Note: Call `ArrayDeclare(type)` before using this macro
+ * Note: Call `array_declare(type)` before using this macro
  * Obs: you must call `free(array)` later
  */
-#define ArrayAllocate(type, size)\
+#define array_allocate(type, size)\
     _array_alloc(sizeof(type), size, 0)
 
 
@@ -66,13 +66,13 @@ void _array_append(void* a, void* b, size_t data_size);
  *      type array[] = {};
  * 
  * usage:
- *      ArrayCreate(int, {0,2,4})
- *      ArrayCreate(float, {2.3f, 0.1f})
+ *      array_create(int, {0,2,4})
+ *      array_create(float, {2.3f, 0.1f})
  * 
- * Note: Call `ArrayDeclare(type)` before using this macro
+ * Note: Call `array_declare(type)` before using this macro
  * Obs: you must call `free(array)` later
  */
-#define ArrayCreate(type, array...) ({\
+#define array_create(type, array...) ({\
     type arr[] = array;\
     _array_alloc(sizeof(type), sizeof(arr)/sizeof(type), arr);\
 })
@@ -81,22 +81,22 @@ void _array_append(void* a, void* b, size_t data_size);
 /* ### Resize a array and return it
  * the array pointer can change, so, reassign it
  */
-#define ArrayResize(old_array, new_size)\
+#define array_resize(old_array, new_size)\
     _array_realloc(&old_array, sizeof(*old_array->at), new_size)
 
 
 // ### Create a new array combining `a` and `b`
-#define ArrayJoin(a,b) _array_join(a,b,sizeof(*a->at))
+#define array_join(a,b) _array_join(a,b,sizeof(*a->at))
 
 
 // ### Appends `b` to `a`
-#define ArrayAppend(a,b) _array_append(&a, b,sizeof(*a->at))
+#define array_append(a,b) _array_append(&a, b,sizeof(*a->at))
 
 
 // Declaring basic data arrays
-ArrayDeclare(int);
-ArrayDeclare(char);
-ArrayDeclare(long);
-ArrayDeclare(short);
-ArrayDeclare(float);
-ArrayDeclare(double);
+array_declare(int);
+array_declare(char);
+array_declare(long);
+array_declare(short);
+array_declare(float);
+array_declare(double);
