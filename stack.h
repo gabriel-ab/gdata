@@ -1,5 +1,5 @@
 /* 
- * Generic linked Stack Library v1.2
+ * Generic Stack v1.2
  * 
  * @author Gabriel-AB
  * https://github.com/Gabriel-AB

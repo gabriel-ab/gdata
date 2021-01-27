@@ -1,6 +1,5 @@
 /* 
- * Heap Allocated Array Library v1.0
- * Do not free, it will be freed automatically
+ * Heap Allocated Array v1.0
  * 
  * @author: Gabriel-AB
  * https://github.com/Gabriel-AB/

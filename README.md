@@ -1,4 +1,7 @@
-# implementations
-App ideas, libraries, or just something cool.
+# gdata
+## A simple C data librarie.
 
-Maybe it will have some other languages in the future...
+### Implemented
+* Double linked List
+* Heap Allocated Array
+* Stack 

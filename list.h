@@ -1,5 +1,5 @@
 /* 
- * Generic double linked List Library v1.5
+ * Generic double linked List v1.5
  * 
  * @author Gabriel-AB
  * https://github.com/Gabriel-AB
