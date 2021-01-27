@@ -69,11 +69,13 @@ void * list_at(List list, int index) {
 }
 
 // ### Constructor
-List _list_create(size_t data_size, size_t size, void * values) {
+List _list_create(size_t data_size, size_t initial_size, void * initial_values) {
     List list = calloc(1,sizeof(struct list));
     *(size_t*)&list->internal.data_size = data_size;
-    if (values)
-        list_push_array(list, size, values);
+    if (initial_values)
+        list_push_array(list, initial_size, initial_values);
+    else if (initial_size)
+        list_resize(list, initial_size);
     return list;
 }
 
@@ -240,7 +242,6 @@ void list_clear(List list) {
 
 List list_push_array(List list, size_t num_elements, void * array) {
     for (size_t i = 0; i < num_elements; i++) {
-        // jumping `i` bytes
         void * array_element = array + i*list->internal.data_size;
         list_push_back(list, array_element);
     }

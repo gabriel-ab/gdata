@@ -32,7 +32,27 @@ typedef struct list {
 
 // ====================== LIBRARY INTERNAL FUNCTIONS ====================== //
 
-List _list_create(size_t data_size, size_t size, void * values);
+/* 
+ * ### Create a list
+ * 
+ * if your data_size can be determined by sizeof() or not dealing with arrays,
+ * list_create() may be simpler to use
+ * 
+ * Args:
+ * * data_size: data size in bytes (all elements will allocate this size)
+ * * initial_size: initial size of the list
+ * * initial_values: pointer to data that will be pushed first
+ * 
+ * Usage:
+ *  for Strings
+ *   _list_create(32, 0, 0) -> list of char[32]
+ *   _list_create(32, 2, (char[2][32]){"Hello", "World"}) -> ["Hello", "World"]
+ * 
+ *  for Arrays
+ *   _list_create(10 * sizeof(int), 0, 0)  -> empty list of int[10]
+ *   _list_create(5 * sizeof(float), 0, 0) -> empty list of float[5]
+ */
+List _list_create(size_t data_size, size_t initial_size, void * initial_values);
 
 // =========================== PUBLIC FUNCTIONS =========================== //
 
@@ -147,9 +167,11 @@ void list_to_array(List list, void* array);
 
 /* 
  * ### Create a list and push values if passed
- * pass values separated by comma (,)
+ * use _list_create() for strings or advanced creation of list
+ * 
  * Args:
- * * type: type of your list. ex: int, float, YourType...
+ * * type: some data type. ex: int, float, YourType...
+ * * initial_values: initialize with these values
  * 
  * Usage:
  * * Ex: `list_create(int)`
@@ -158,8 +180,8 @@ void list_to_array(List list, void* array);
  * Obsevations:
  * * You must call `list_delete()` to free alocated memory
  */
-#define list_create(type, values...) ({\
-    type a[] = {values};\
+#define list_create(type, initial_values...) ({\
+    type a[] = {initial_values};\
     _list_create(sizeof(type), sizeof(a)/sizeof(type), a);\
 })
 
