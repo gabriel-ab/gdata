@@ -169,10 +169,6 @@ void list_to_array(List list, void* array);
  * ### Create a list and push values if passed
  * use _list_create() for strings or advanced creation of list
  * 
- * Args:
- * * type: some data type. ex: int, float, YourType...
- * * initial_values: initialize with these values
- * 
  * Usage:
  * * Ex: `list_create(int)`
  * * Ex: `list_create(double, 2.7, 3.2, 0.5, 0.1, 0.9)`
@@ -180,8 +176,8 @@ void list_to_array(List list, void* array);
  * Obsevations:
  * * You must call `list_delete()` to free alocated memory
  */
-#define list_create(type, initial_values...) ({\
-    type a[] = {initial_values};\
+#define list_create(type, ...) ({\
+    type a[] = {__VA_ARGS__};\
     _list_create(sizeof(type), sizeof(a)/sizeof(type), a);\
 })
 

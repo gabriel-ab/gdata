@@ -26,13 +26,12 @@ typedef struct stack {
 Stack _stack_create(size_t data_size, size_t size, void *data);
 
 /* ### Creates a new Stack and attribute some values if passed
- * pass values separated by comma (,)
  * ex:
  *   stack_create(float)
  *   stack_create(int, 1,2,3)
  */
-#define stack_create(type, values...) ({\
-    type arr[] = {values};\
+#define stack_create(type, ...) ({\
+    type arr[] = {__VA_ARGS__};\
     _stack_create(sizeof(type), sizeof(arr)/sizeof(type), arr);\
 })
 

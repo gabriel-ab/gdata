@@ -216,13 +216,17 @@ void list_remove(List list, int index) {
 }
 
 void list_remove_iter(List list) {
-    if (list->internal.iterator == NULL)
-        return list_remove(list, -1);
+    if (list->internal.iterator == NULL) {
+        list_remove(list, -1);
+        return;
+    }
 
     struct list_node * current = list->internal.iterator->back;
     if (current) {
-        if (current == list->head)
-            return list_remove(list, 0);
+        if (current == list->head) {
+            list_remove(list, 0);
+            return;
+        }
         
         _list_detach_node(current);
         free(current);
@@ -242,7 +246,7 @@ void list_clear(List list) {
 
 List list_push_array(List list, size_t num_elements, void * array) {
     for (size_t i = 0; i < num_elements; i++) {
-        void * array_element = array + i*list->internal.data_size;
+        void * array_element = (char*)array + i*list->internal.data_size;
         list_push_back(list, array_element);
     }
     return list;

@@ -19,6 +19,21 @@
 #pragma once
 #include <stdlib.h>
 
+// ====================== LIBRARY INTERNAL FUNCTIONS ====================== //
+// ### Create a new Array with values
+void * _array_alloc(size_t data_size, size_t size, void * values);
+
+// ### Reallocates an existing array
+void _array_realloc(void *array, size_t data_size, size_t new_size);
+
+// ### Create a new array combining `a` and `b`
+void* _array_join(void* a, void* b, size_t data_size);
+
+// ### appends `b` to `a`
+void _array_append(void* a, void* b, size_t data_size);
+
+// ============================= PUBLIC MACROS ============================ //
+
 /* 
  * ### Declares a array of type
  * The type `typeArray` is will be avaliable to you
@@ -35,45 +50,28 @@ typedef struct {\
 } *type##Array
 
 
-// ====================== LIBRARY INTERNAL FUNCTIONS ====================== //
-// ### Create a new Array with values
-void * _array_alloc(size_t data_size, size_t size, void * values);
-
-// ### Reallocates an existing array
-void _array_realloc(void *array, size_t data_size, size_t new_size);
-
-// ### Create a new array combining `a` and `b`
-void* _array_join(void* a, void* b, size_t data_size);
-
-// ### appends `b` to `a`
-void _array_append(void* a, void* b, size_t data_size);
-
-// =========================== PUBLIC FUNCTIONS =========================== //
-
 /* ### Create a new Array with zeros
  * 
- * Note: Call `array_declare(type)` before using this macro
  * Obs: you must call `free(array)` later
  */
 #define array_allocate(type, size)\
-    _array_alloc(sizeof(type), size, 0)
+    (type##Array)_array_alloc(sizeof(type), size, 0)
 
 
-/* ### Create a new Array based on a array literal and assign values
+/* ### Create a new Array based on a set of values
  * 
  * equivalent to:
- *      type array[] = {};
+ *      type array[] = {values...};
  * 
  * usage:
  *      array_create(int, {0,2,4})
  *      array_create(float, {2.3f, 0.1f})
  * 
- * Note: Call `array_declare(type)` before using this macro
  * Obs: you must call `free(array)` later
  */
-#define array_create(type, array...) ({\
-    type arr[] = array;\
-    _array_alloc(sizeof(type), sizeof(arr)/sizeof(type), arr);\
+#define array_create(type, ...) ({\
+    type arr[] = __VA_ARGS__;\
+    (type##Array)_array_alloc(sizeof(type), sizeof(arr)/sizeof(type), arr);\
 })
 
 
