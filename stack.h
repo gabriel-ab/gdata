@@ -6,7 +6,7 @@
  * 
  */
 #pragma once
-#include <stdlib.h>
+#include <stddef.h>
 
 struct stack_node {
     struct stack_node *next;
@@ -18,7 +18,7 @@ typedef struct stack {
     size_t size;
     struct {
         struct stack_node *pop;
-        const size_t data_size;
+        const size_t dsize;
     } internal;
 } *Stack;
 
@@ -56,3 +56,6 @@ void* stack_pop(Stack stack);
 
 // ### Remove all elements
 void stack_clear(Stack stack);
+
+// Create a reversed stack
+Stack stack_reverse(Stack stack);

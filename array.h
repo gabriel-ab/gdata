@@ -5,11 +5,11 @@
  * https://github.com/Gabriel-AB/
  * 
  * Usage:
- *   call `array_declare(type)` before all the code 
+ *   call `typedef_array(type)` before all the code 
  *   and use `typeArray` as your a array of type
  * 
  *   Ex: 
- *      array_declare(int);
+ *      typedef_array(int);
  *      intArray array1 = array_create(int, {1,2,3});
  *      intArray array2 = array_allocate(int, 10);
  *
@@ -17,7 +17,7 @@
  *     > You must call `free(array)` later
  */
 #pragma once
-#include <stdlib.h>
+#include <stddef.h>
 
 // ====================== LIBRARY INTERNAL FUNCTIONS ====================== //
 // ### Create a new Array with values
@@ -41,9 +41,9 @@ void _array_append(void* a, void* b, size_t data_size);
  * if you want to use a type like `unsigned int`, make an alias
  * ex: 
  * > typedef unsigned int uint; 
- * > array_declare(uint);
+ * > typedef_array(uint);
  */
-#define array_declare(type)\
+#define typedef_array(type)\
 typedef struct {\
     size_t size;\
     type at[];\
@@ -91,9 +91,9 @@ typedef struct {\
 
 
 // Declaring basic data arrays
-array_declare(int);
-array_declare(char);
-array_declare(long);
-array_declare(short);
-array_declare(float);
-array_declare(double);
+typedef_array(int);
+typedef_array(char);
+typedef_array(long);
+typedef_array(short);
+typedef_array(float);
+typedef_array(double);

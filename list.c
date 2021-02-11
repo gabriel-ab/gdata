@@ -7,6 +7,7 @@
  */
 
 #include "list.h"
+#include <stdlib.h>
 #include <string.h>
 
 #ifdef LIST_DEBUG
@@ -71,7 +72,7 @@ void * list_at(List list, int index) {
 // ### Constructor
 List _list_create(size_t data_size, size_t initial_size, void * initial_values) {
     List list = calloc(1,sizeof(struct list));
-    *(size_t*)&list->internal.data_size = data_size;
+    *(size_t*)&list->internal.dsize = data_size;
     if (initial_values)
         list_push_array(list, initial_size, initial_values);
     else if (initial_size)
@@ -84,9 +85,9 @@ List _list_create(size_t data_size, size_t initial_size, void * initial_values) 
 
 // Push value in list's end.
 void list_push_back(List list, void * item) {
-    struct list_node *new_node = _list_new_node(list->internal.data_size);
+    struct list_node *new_node = _list_new_node(list->internal.dsize);
 
-    if (item) memcpy(new_node->data, item, list->internal.data_size);
+    if (item) memcpy(new_node->data, item, list->internal.dsize);
 
     if (list->size++ > 0) {
         list->tail->next = new_node;
@@ -98,9 +99,9 @@ void list_push_back(List list, void * item) {
 
 // Push value in list's begin.
 void list_push_front(List list, void * item) {
-    struct list_node *new_node = _list_new_node(list->internal.data_size);
+    struct list_node *new_node = _list_new_node(list->internal.dsize);
 
-    if (item) memcpy(new_node->data, item, list->internal.data_size);
+    if (item) memcpy(new_node->data, item, list->internal.dsize);
 
     if (list->size++ > 0) {
         list->head->back = new_node;
@@ -114,7 +115,7 @@ void list_push_front(List list, void * item) {
 void list_push(List list, int index, void * item) {
     struct list_node *old_node = _list_node_at(list, index);
     if (old_node) {
-        struct list_node *new_node = _list_new_node(list->internal.data_size);
+        struct list_node *new_node = _list_new_node(list->internal.dsize);
         if (new_node) {
             // Goes before old item
             if (index >= 0) {
@@ -137,7 +138,7 @@ void list_push(List list, int index, void * item) {
                 old_node->next = new_node;
             }
         }
-        if (item) memcpy(new_node->data, item, list->internal.data_size);
+        if (item) memcpy(new_node->data, item, list->internal.dsize);
         list->size++;
     }
 #ifdef LIST_DEBUG
@@ -181,7 +182,7 @@ void list_resize(List list, unsigned int new_size) {
     if (list->size < new_size) {
         int count = new_size -list->size;
         for (int i = 0; i < count; i++) {
-            void * item = calloc(1,list->internal.data_size);
+            void * item = calloc(1,list->internal.dsize);
             list_push_back(list, item);
         }
             
@@ -205,7 +206,7 @@ void * list_for_each(List list) {
 
 // Returns a copy of `src`
 List list_copy(List src) {
-    List dst = _list_create(src->internal.data_size, 0, 0);
+    List dst = _list_create(src->internal.dsize, 0, 0);
     for (void *data; (data = list_for_each(src));)
         list_push_back(dst, data);
     return dst;
@@ -246,7 +247,7 @@ void list_clear(List list) {
 
 List list_push_array(List list, size_t num_elements, void * array) {
     for (size_t i = 0; i < num_elements; i++) {
-        void * array_element = (char*)array + i*list->internal.data_size;
+        void * array_element = (char*)array + i*list->internal.dsize;
         list_push_back(list, array_element);
     }
     return list;
@@ -256,8 +257,8 @@ List list_push_array(List list, size_t num_elements, void * array) {
 void list_to_array(List list, void* array) {
     struct list_node *n = list->head;
     for (size_t i = 0; i < list->size; i++) {
-        void * array_element = (char*)array + i*list->internal.data_size;
-        memcpy(array_element, n->data, list->internal.data_size);
+        void * array_element = (char*)array + i*list->internal.dsize;
+        memcpy(array_element, n->data, list->internal.dsize);
         n = n->next;
     }
 }

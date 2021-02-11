@@ -8,7 +8,7 @@
  */
 
 #pragma once
-#include <stdlib.h>
+#include <stddef.h>
 
 // #define LIST_DEBUG
 
@@ -25,7 +25,7 @@ typedef struct list {
     struct {
         struct list_node* iterator;
         struct list_node* pop;
-        const size_t data_size;
+        const size_t dsize;
     } internal;
 } *List;
 
