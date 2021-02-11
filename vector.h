@@ -5,11 +5,11 @@
  * https://github.com/Gabriel-AB/
  * 
  * Usage:
- *   call `typedef_vector(type)` and 
+ *   call `vector_typedef(type)` and 
  *   use `typeVector` as your vector
  * 
  *   Ex:
- *      typedef_vector(int);
+ *      vector_typedef(int);
  *      intVector v = vector_create(int, {1,2,3});
  *      intVector v = vector_alloc(int, 10);
  *
@@ -23,7 +23,7 @@
 /* 
  * ### Declare a type of vector
  */
-# define typedef_vector(type)\
+# define vector_typedef(type)\
 typedef struct type##Vector {\
     type* at;\
     size_t size;\
@@ -84,9 +84,9 @@ void vec_push_front(void* vector, void* data);
 void* vec_pop_front(void* vector);
 
 // Declaring basic data vectors
-typedef_vector(int);
-typedef_vector(char);
-typedef_vector(long);
-typedef_vector(short);
-typedef_vector(float);
-typedef_vector(double);
+vector_typedef(int);
+vector_typedef(char);
+vector_typedef(long);
+vector_typedef(short);
+vector_typedef(float);
+vector_typedef(double);

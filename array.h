@@ -5,11 +5,11 @@
  * https://github.com/Gabriel-AB/
  * 
  * Usage:
- *   call `typedef_array(type)` before all the code 
+ *   call `array_typedef(type)` before all the code 
  *   and use `typeArray` as your a array of type
  * 
  *   Ex: 
- *      typedef_array(int);
+ *      array_typedef(int);
  *      intArray array1 = array_create(int, {1,2,3});
  *      intArray array2 = array_allocate(int, 10);
  *
@@ -41,9 +41,9 @@ void _array_append(void* a, void* b, size_t data_size);
  * if you want to use a type like `unsigned int`, make an alias
  * ex: 
  * > typedef unsigned int uint; 
- * > typedef_array(uint);
+ * > array_typedef(uint);
  */
-#define typedef_array(type)\
+#define array_typedef(type)\
 typedef struct {\
     size_t size;\
     type at[];\
@@ -91,9 +91,9 @@ typedef struct {\
 
 
 // Declaring basic data arrays
-typedef_array(int);
-typedef_array(char);
-typedef_array(long);
-typedef_array(short);
-typedef_array(float);
-typedef_array(double);
+array_typedef(int);
+array_typedef(char);
+array_typedef(long);
+array_typedef(short);
+array_typedef(float);
+array_typedef(double);
