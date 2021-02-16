@@ -38,7 +38,7 @@ typedef struct type ## list {\
     struct {\
         struct list_node* pop;\
         const size_t dsize;\
-        const type dtype[];\
+        type dtype[];\
     } internal;\
 } *type ## List
 
@@ -54,14 +54,14 @@ typedef void *AnyList, *AnyListNode;
 // the type of data supported depends on the list type
 #define list_pushback(list, ...) ({\
     list_get_type(list) v[] = {__VA_ARGS__};\
-    _list_pushback(list, sizeof(v)/sizeof(*v), (void*)v);\
+    _list_pushback(list, sizeof(v)/sizeof(*v), v);\
 })
 
 // Push itens in the front of the list
 // the type of data supported depends on the list type
 #define list_pushfront(list, ...) ({\
     list_get_type(list) v[] = {__VA_ARGS__};\
-    _list_pushfront(list, sizeof(v)/sizeof(*v), (void*)v);\
+    _list_pushfront(list, sizeof(v)/sizeof(*v), v);\
 })
 
 /**
@@ -88,11 +88,11 @@ typedef void *AnyList, *AnyListNode;
  * list: any kind of List. ex: List, intList, floatList...
  */
 #define list_for_each(cursor, list)\
-    for (struct { void *next, *back; list_get_type(list) data; }\
-         *cursor = (void*)list->head, *next = cursor->next;\
-         cursor; cursor = cursor->next)
+    for (__typeof__(struct { void *next, *back; list_get_type(list) data;})\
+         *cursor = (void*)list->head; cursor; cursor = cursor->next)
 
-#define list_push(list, index, item) _list_push(list, index, (void*)((list_get_type(list)[]){item}))
+
+#define list_push(list, index, item) _list_push(list, index, ((list_get_type(list)[]){item}))
 
 
 /** 
@@ -121,7 +121,7 @@ typedef void *AnyList, *AnyListNode;
  * * initial_size: initial size of the list
  * * initial_values: pointer to data that will be pushed first
  */
-void* _list_create(size_t data_size, size_t initial_size, void * initial_values);
+void* _list_create(size_t data_size, size_t initial_size, void *initial_values);
 
 // Push `num_elements` of `data` to list's end.
 void _list_pushback(AnyList list, size_t num_elements, void *data);

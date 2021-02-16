@@ -30,14 +30,6 @@ static struct list_node *_list_new_node(size_t size) {
 }
 
 /* 
- * Free the given node conecting neighbors to each other
- * and return the allocated data pointer
- */
-static void _list_detach_node(struct list_node *n) {
-    
-}
-
-/* 
  * Find the linked node by the given index.
  */
 static struct list_node * _list_find(struct list_node * node, int index) {
@@ -183,7 +175,7 @@ void *_list_pop_node(AnyList _list, AnyListNode _node) {
 }
 
 void* _list_pop(AnyList list, int index) {
-    _list_pop_node(list, _list_node_at(list, index));
+    return _list_pop_node(list, _list_node_at(list, index));
 }
 
 // Resize a list allocating new memory,
