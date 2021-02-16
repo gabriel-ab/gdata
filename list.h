@@ -68,19 +68,19 @@ typedef void *AnyList, *AnyListNode;
  * Pop the element at the given index
  * if `index` is negative, searchs in reverse.
  */
-#define list_pop(list, index) (*(list_type(list)*)_list_pop(list, index))
+#define list_pop(list, index) (*(list_get_type(list)*)_list_pop(list, index))
 
 // Pop list's tail
-#define list_popback(list) (*(list_type(list)*)_list_pop(list, -1))
+#define list_popback(list) (*(list_get_type(list)*)_list_pop(list, -1))
 
 // Pop list's head
-#define list_popfront(list) (*(list_type(list)*)_list_pop(list, 0))
+#define list_popfront(list) (*(list_get_type(list)*)_list_pop(list, 0))
 
 // Pop the passed node checking and updating list
-#define list_popnode(list, node) (*(list_type(list)*)_list_pop_node(list,node))
+#define list_popnode(list, node) (*(list_get_type(list)*)_list_pop_node(list,node))
 
 // Get element at the given index
-#define list_at(list, index) (*(list_type(list)*)_list_at(list, index))
+#define list_at(list, index) (*(list_get_type(list)*)_list_at(list, index))
 
 /** 
  * ## for wrapper for AnyList
@@ -92,7 +92,7 @@ typedef void *AnyList, *AnyListNode;
          *cursor = (void*)list->head, *next = cursor->next;\
          cursor; cursor = cursor->next)
 
-#define list_push(list, index, item) _list_push(list, index, (void*)((list_type(list)[]){item}))
+#define list_push(list, index, item) _list_push(list, index, (void*)((list_get_type(list)[]){item}))
 
 
 /** 
