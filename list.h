@@ -48,19 +48,19 @@ typedef void *AnyList, *AnyListNode;
 #define list(type) type##List
 
 // get list type witch is holded by internal.dtype
-#define list_get_type(list) __typeof__(*list->internal.dtype)
+#define list_dtype(list) __typeof__(*list->internal.dtype)
 
 // Push itens in the front of the list
 // the type of data supported depends on the list type
 #define list_pushback(list, ...) ({\
-    list_get_type(list) v[] = {__VA_ARGS__};\
+    list_dtype(list) v[] = {__VA_ARGS__};\
     _list_pushback(list, sizeof(v)/sizeof(*v), v);\
 })
 
 // Push itens in the front of the list
 // the type of data supported depends on the list type
 #define list_pushfront(list, ...) ({\
-    list_get_type(list) v[] = {__VA_ARGS__};\
+    list_dtype(list) v[] = {__VA_ARGS__};\
     _list_pushfront(list, sizeof(v)/sizeof(*v), v);\
 })
 
@@ -68,19 +68,19 @@ typedef void *AnyList, *AnyListNode;
  * Pop the element at the given index
  * if `index` is negative, searchs in reverse.
  */
-#define list_pop(list, index) (*(list_get_type(list)*)_list_pop(list, index))
+#define list_pop(list, index) (*(list_dtype(list)*)_list_pop(list, index))
 
 // Pop list's tail
-#define list_popback(list) (*(list_get_type(list)*)_list_pop(list, -1))
+#define list_popback(list) (*(list_dtype(list)*)_list_pop(list, -1))
 
 // Pop list's head
-#define list_popfront(list) (*(list_get_type(list)*)_list_pop(list, 0))
+#define list_popfront(list) (*(list_dtype(list)*)_list_pop(list, 0))
 
 // Pop the passed node checking and updating list
-#define list_popnode(list, node) (*(list_get_type(list)*)_list_pop_node(list,node))
+#define list_popnode(list, node) (*(list_dtype(list)*)_list_pop_node(list,node))
 
 // Get element at the given index
-#define list_at(list, index) (*(list_get_type(list)*)_list_at(list, index))
+#define list_at(list, index) (*(list_dtype(list)*)_list_at(list, index))
 
 /** 
  * ## for wrapper for AnyList
@@ -88,12 +88,10 @@ typedef void *AnyList, *AnyListNode;
  * list: any kind of List. ex: List, intList, floatList...
  */
 #define list_for_each(cursor, list)\
-    for (__typeof__(struct { void *next, *back; list_get_type(list) data;})\
+    for (__typeof__(struct { void *next, *back; list_dtype(list) data;})\
          *cursor = (void*)list->head; cursor; cursor = cursor->next)
 
-
-#define list_push(list, index, item) _list_push(list, index, ((list_get_type(list)[]){item}))
-
+#define list_push(list, index, item) _list_push(list, index, ((list_dtype(list)[]){item}))
 
 /** 
  * ### Create a list and push values if passed
