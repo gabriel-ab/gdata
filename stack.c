@@ -2,12 +2,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-Stack _stack_create(size_t data_size, size_t size, void *data) {
+Stack stack_create(size_t data_size, size_t initial_size, void *initial_values) {
     Stack stack = malloc(sizeof(struct stack));
     *(size_t*)&stack->internal.dsize = data_size;
-    if (data)
-        for (size_t i = 0; i < size; i++)
-            stack_push(stack, (char*)data + i*data_size);
+    if (initial_values)
+        for (size_t i = 0; i < initial_size; i++)
+            stack_push(stack, (char*)initial_values + i*data_size);
     return stack;
 }
 
@@ -46,7 +46,7 @@ void stack_clear(Stack stack) {
 }
 
 Stack stack_reverse(Stack stack) {
-    Stack result = _stack_create(stack->internal.dsize, 0, 0);
+    Stack result = stack_create(stack->internal.dsize, 0, 0);
     while (stack->size)
         stack_push(result, stack_pop(stack));
     return result;

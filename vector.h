@@ -5,13 +5,13 @@
  * @github: https://github.com/Gabriel-AB/
  * 
  * usage:
- *      call `vector_typedef(type)` and 
+ *      call `VECTOR_TYPEDEF(type)` and 
  *      use `typeVector` as your vector
  * 
  * ex:
- *      vector_typedef(int);
- *      intVector v = vector_create(int, 1,2,3);
- *      intVector v = vector_allocate(int, 10);
+ *      VECTOR_TYPEDEF(int);
+ *      intVector v = VECTOR_CREATE(int, 1,2,3);
+ *      intVector v = VECTOR_ALLOCATE(int, 10);
  * 
  * build in types:
  *      Vector       intVector     floatVector 
@@ -25,7 +25,7 @@
  * ### Declare a type of vector
  * and use `typeVector`
  * usage: 
- *      vector_typedef(MyType);
+ *      VECTOR_TYPEDEF(MyType);
  *      and MyTypeVector is now available
  * 
  * note: type must be a single name, because the type must fit in vector's name
@@ -36,7 +36,7 @@
  *       
  *      
  */
-#define vector_typedef(type)\
+#define VECTOR_TYPEDEF(type)\
 typedef struct type ## Vector {\
     type *at;\
     size_t size;\
@@ -48,8 +48,20 @@ typedef struct type ## Vector {\
     } internal;\
 }* type ## Vector
 
+// Declaring basic data vectors
+VECTOR_TYPEDEF(char);
+
+VECTOR_TYPEDEF(short);
+VECTOR_TYPEDEF(int);
+VECTOR_TYPEDEF(long);
+
+VECTOR_TYPEDEF(float);
+VECTOR_TYPEDEF(double);
+
+typedef void* AnyVector;
 
 
+// ===== MACROS ===== //
 
 
 /**
@@ -58,13 +70,13 @@ typedef struct type ## Vector {\
  * 
  * _usage_:
  * ### common types:
- * > `vector_create(int)`
+ * > `VECTOR_CREATE(int)`
  * results in: empty vector
  *   
- * > `vector_create(int, 1, 3, 5)`
+ * > `VECTOR_CREATE(int, 1, 3, 5)`
  * results in: [1, 2, 3]
  *   
- * > `vector_create(char, "string")`
+ * > `VECTOR_CREATE(char, "string")`
  * results in: [`s`,`t`,`r`,`i`,`n`,`g`]
  * 
  *   
@@ -72,10 +84,10 @@ typedef struct type ## Vector {\
  * first define your type of array, ex: int3 for int[3]
  * ```
  * > typedef int int3[3] 
- * > vector_typedef(int3)
- * > int3Vector v1 = vector_create(int[3], 1,2,3, 0,0,0)
+ * > VECTOR_TYPEDEF(int3)
+ * > int3Vector v1 = VECTOR_CREATE(int[3], 1,2,3, 0,0,0)
  * // OR
- * > int3Vector v2 = vector_create(int[3], {1,2,3}, {0,0,0})
+ * > int3Vector v2 = VECTOR_CREATE(int[3], {1,2,3}, {0,0,0})
  * ```
  * results in: [(1,2,3), (0,0,0)]
  * 
@@ -83,15 +95,15 @@ typedef struct type ## Vector {\
  * ### using strings: 
  * ```
  * > typedef char char32[32];
- * > vector_typedef(char32);
- * > char32Vector v = vector_create(char[32], "string 1", "string 2");
+ * > VECTOR_TYPEDEF(char32);
+ * > char32Vector v = VECTOR_CREATE(char[32], "string 1", "string 2");
  * ```
  * results in: ["string 1", "string 2"]
  * 
  */
-#define vector_create(type, ...) ({\
+#define VECTOR_CREATE(type, ...) ({\
     __typeof__(type) v[] = {__VA_ARGS__};\
-    _vec_create(sizeof(type), sizeof(v)/sizeof(*v), v);\
+    vector_create(sizeof(type), sizeof(v)/sizeof(*v), v);\
 })
 
 /**
@@ -100,105 +112,85 @@ typedef struct type ## Vector {\
  * 
  * note: You must call `vector_delete()` later
  */
-#define vector_allocate(type, size)\
-    _vec_create(sizeof(type), size, 0)
+#define VECTOR_ALLOCATE(type, size)\
+    vector_create(sizeof(type), size, 0)
 
 /**
  * Push one or more values to vector's end
  * usage:
  * ```
- * > vector_pushback(int_vector, 0)
- * > vector_pushback(int_vector, 1, 2, 3)
+ * > VECTOR_PUSHBACK(int_vector, 0)
+ * > VECTOR_PUSHBACK(int_vector, 1, 2, 3)
  * 
- * > vector_pushback(char_vector, "appended")
- * > vector_pushback(char_vector, 'a', 'd', 'd')
+ * > VECTOR_PUSHBACK(char_vector, "appended")
+ * > VECTOR_PUSHBACK(char_vector, 'a', 'd', 'd')
  * 
- * > vector_pushback(float_vector, 3.1, 9.21)
+ * > VECTOR_PUSHBACK(float_vector, 3.1, 9.21)
  * 
- * > vector_pushback(char32_vector, "string 1", "string 2")
+ * > VECTOR_PUSHBACK(char32_vector, "string 1", "string 2")
  * ```
- * see `vector_create` for `char32` explanation
+ * see `VECTOR_CREATE` for `char32` explanation
  */
-#define vector_pushback(vector, ...) ({\
+#define VECTOR_PUSHBACK(vector, ...) ({\
     __typeof__(*vector->at) v[] = {__VA_ARGS__};\
-    _vec_pushback(vector, sizeof(v)/sizeof(*v), v);\
+    vector_pushback(vector, sizeof(v)/sizeof(*v), v);\
 })
 
 /**
  * Push one or more values to vector's end
  * usage:
  * ```
- * > vector_pushfront(int_vector, 0)
- * > vector_pushfront(int_vector, 1, 2, 3)
+ * > VECTOR_PUSHFRONT(int_vector, 0)
+ * > VECTOR_PUSHFRONT(int_vector, 1, 2, 3)
  * 
- * > vector_pushfront(char_vector, "appended")
- * > vector_pushfront(char_vector, 'a', 'd', 'd')
+ * > VECTOR_PUSHFRONT(char_vector, "appended")
+ * > VECTOR_PUSHFRONT(char_vector, 'a', 'd', 'd')
  * 
- * > vector_pushfront(float_vector, 3.1, 9.21)
+ * > VECTOR_PUSHFRONT(float_vector, 3.1, 9.21)
  * 
- * > vector_pushfront(char32_vector, "string 1", "string 2")
+ * > VECTOR_PUSHFRONT(char32_vector, "string 1", "string 2")
  * ```
- * see `vector_create` for `char32` explanation
+ * see `VECTOR_CREATE` for `char32` explanation
  * note: multiple values will be pushed in the same order
  */
-#define vector_pushfront(vector, ...) ({\
+#define VECTOR_PUSHFRONT(vector, ...) ({\
     __typeof__(*vector->at) v[] = {__VA_ARGS__};\
-    _vec_pushfront(vector, sizeof(v)/sizeof(*v), v);\
+    vector_pushfront(vector, sizeof(v)/sizeof(*v), v);\
 })
 
 /**
  * Gets the last element
  * and remove it from vector
  */
-#define vector_popback(vector) (*(__typeof__(vector->at))_vec_popback(vector));
+#define VECTOR_POPBACK(vector) (*(__typeof__(vector->at))vector_popback(vector));
 
 /**
  * Gets the first element
  * and remove it from vector
  */
-#define vector_popfront(vector) (*(__typeof__(vector->at))_vec_popfront(vector));
+#define VECTOR_POPFRONT(vector) (*(__typeof__(vector->at))vector_popfront(vector));
 
 
-// ====================== LIBRARY INTERNAL FUNCTIONS ====================== //
+// ===== FUNCTIONS ===== //
+
 
 // Create vector and pass values
-void* _vec_create(size_t data_size, size_t initial_size, void* initial_values);
+void* vector_create(size_t data_size, size_t initial_size, void* initial_values);
 
 // Push `data` to vector's end
-void _vec_pushback(void* vector, size_t num_elements, void* data);
+void vector_pushback(AnyVector vector, size_t num_elements, void* data);
 
 // Push `data` to vector's begin
-void _vec_pushfront(void* vector, size_t num_elements, void* data);
+void vector_pushfront(AnyVector vector, size_t num_elements, void* data);
 
 // Pop vector's last element
-void* _vec_popback(void* vector);
+void* vector_popback(AnyVector vector);
 
 // Pop vector's first element
-void* _vec_popfront(void* vector);
+void* vector_popfront(AnyVector vector);
 
-/**
- * ### Remove element at given index
- */
-void vector_remove(void* vector, size_t index);
+// Remove element at given index
+void vector_remove(AnyVector vector, size_t index);
 
-/**
- * ### Get a pointer to the given index
- * needed when using as generic Vector
- */
-void* vector_at(void* vector, size_t index);
-
-/**
- * ### Free it's internal array and structure 
- */
-void vector_delete(void* vector);
-
-
-// Declaring basic data vectors
-vector_typedef(char);
-
-vector_typedef(short);
-vector_typedef(int);
-vector_typedef(long);
-
-vector_typedef(float);
-vector_typedef(double);
+// Free it's internal array and structure 
+void vector_delete(AnyVector vector);
