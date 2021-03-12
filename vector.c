@@ -45,7 +45,7 @@ void* vector_create(size_t data_size, size_t initial_size, void* initial_values)
     return (void*)vector;
 }
 
-void vector_pushback(void* vector, size_t num_elements, void* data) {
+void vector_pushback(AnyVector vector, size_t num_elements, void* data) {
     charVector v = vector;
     size_t avaliable = v->internal.alloc - v->internal.offset - v->size;
 
@@ -58,7 +58,7 @@ void vector_pushback(void* vector, size_t num_elements, void* data) {
     v->size += num_elements;
 }
 
-void vector_pushfront(void* vector, size_t num_elements, void* data) {
+void vector_pushfront(AnyVector vector, size_t num_elements, void* data) {
     charVector v = vector;
 
     if (num_elements >= v->internal.offset) {
@@ -72,7 +72,7 @@ void vector_pushfront(void* vector, size_t num_elements, void* data) {
     memcpy(v->at, data, num_elements*v->internal.dsize);
 }
 
-void* vector_popback(void* vector) {
+void* vector_popback(AnyVector vector) {
     charVector v = vector;
     size_t right = v->internal.alloc - (v->internal.offset + v->size);
     
@@ -83,7 +83,7 @@ void* vector_popback(void* vector) {
     return vector_at(v, v->size);
 }
 
-void* vector_popfront(void* vector) {
+void* vector_popfront(AnyVector vector) {
     charVector v = vector;
     size_t left = v->internal.offset;
 
@@ -96,12 +96,12 @@ void* vector_popfront(void* vector) {
     return v->at - v->internal.dsize;
 }
 
-void vector_delete(void* v) {
+void vector_delete(AnyVector v) {
     free(((charVector)v)->internal.begin);
     free(v);
 }
 
-void vector_remove(void* vector, size_t index) {
+void vector_remove(AnyVector vector, size_t index) {
     charVector v = vector;
     if (index > v->size/2) {
         memmove(vector_at(v, index), vector_at(v, index + 1),
@@ -114,4 +114,8 @@ void vector_remove(void* vector, size_t index) {
         v->internal.offset++;
     }
     v->size--;
+}
+
+void* vector_at(AnyVector vector, size_t index) {
+    return ((charVector)vector)->at + index*((charVector)vector)->internal.dsize;
 }

@@ -30,8 +30,8 @@ typedef struct stack {
  *   STACK_CREATE(int, 1,2,3)
  */
 #define STACK_CREATE(type, ...) ({\
-    type arr[] = {__VA_ARGS__};\
-    stack_create(sizeof(type), sizeof(arr)/sizeof(type), arr);\
+    type _arr[] = {__VA_ARGS__};\
+    stack_create(sizeof(type), sizeof(_arr)/sizeof(type), _arr);\
 })
 
 

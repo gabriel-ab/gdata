@@ -70,8 +70,8 @@ typedef void* AnyArray;
  * Obs: you must call `free(array)` later
  */
 #define ARRAY_CREATE(type, ...) ({\
-    type arr[] = __VA_ARGS__;\
-    (type##Array)array_create(sizeof(type), sizeof(arr)/sizeof(type), arr);\
+    type _arr[] = __VA_ARGS__;\
+    (type##Array)array_create(sizeof(type), sizeof(_arr)/sizeof(type), _arr);\
 })
 
 /* ### Resize a array and return it

@@ -102,8 +102,8 @@ typedef void* AnyVector;
  * 
  */
 #define VECTOR_CREATE(type, ...) ({\
-    __typeof__(type) v[] = {__VA_ARGS__};\
-    vector_create(sizeof(type), sizeof(v)/sizeof(*v), v);\
+    __typeof__(type) _vec[] = {__VA_ARGS__};\
+    vector_create(sizeof(type), sizeof(_vec)/sizeof(*_vec), _vec);\
 })
 
 /**
@@ -132,8 +132,8 @@ typedef void* AnyVector;
  * see `VECTOR_CREATE` for `char32` explanation
  */
 #define VECTOR_PUSHBACK(vector, ...) ({\
-    __typeof__(*vector->at) v[] = {__VA_ARGS__};\
-    vector_pushback(vector, sizeof(v)/sizeof(*v), v);\
+    __typeof__(*vector->at) _vec[] = {__VA_ARGS__};\
+    vector_pushback(vector, sizeof(_vec)/sizeof(*_vec), _vec);\
 })
 
 /**
@@ -154,21 +154,21 @@ typedef void* AnyVector;
  * note: multiple values will be pushed in the same order
  */
 #define VECTOR_PUSHFRONT(vector, ...) ({\
-    __typeof__(*vector->at) v[] = {__VA_ARGS__};\
-    vector_pushfront(vector, sizeof(v)/sizeof(*v), v);\
+    __typeof__(*vector->at) _vec[] = {__VA_ARGS__};\
+    vector_pushfront(vector, sizeof(_vec)/sizeof(*_vec), _vec);\
 })
 
 /**
  * Gets the last element
  * and remove it from vector
  */
-#define VECTOR_POPBACK(vector) (*(__typeof__(vector->at))vector_popback(vector));
+#define VECTOR_POPBACK(vector) (*(__typeof__(vector->at))vector_popback(vector))
 
 /**
  * Gets the first element
  * and remove it from vector
  */
-#define VECTOR_POPFRONT(vector) (*(__typeof__(vector->at))vector_popfront(vector));
+#define VECTOR_POPFRONT(vector) (*(__typeof__(vector->at))vector_popfront(vector))
 
 
 // ===== FUNCTIONS ===== //
@@ -191,6 +191,10 @@ void* vector_popfront(AnyVector vector);
 
 // Remove element at given index
 void vector_remove(AnyVector vector, size_t index);
+
+// Get a pointer to the given index.
+// needed when using as generic Vector
+void* vector_at(void* vector, size_t index);
 
 // Free it's internal array and structure 
 void vector_delete(AnyVector vector);

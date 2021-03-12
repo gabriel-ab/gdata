@@ -42,7 +42,7 @@ AnyArray array_join(AnyArray a, AnyArray b, size_t data_size) {
 }
 
 void array_append(AnyArray *a, AnyArray b, size_t data_size) {
-    char* array = *a;
+    void* array = *a;
     size_t a_size = *(size_t*)a;
     size_t b_size = *(size_t*)b;
     array_resize(&array, data_size, a_size + b_size);

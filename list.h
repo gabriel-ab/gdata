@@ -44,8 +44,8 @@ typedef void *AnyList;
  * the type of data supported depends on the list type
  */
 #define LIST_PUSHBACK(list, ...) ({\
-    LIST_DTYPE(list) v[] = {__VA_ARGS__};\
-    list_pushback(list, sizeof(v)/sizeof(*v), v);\
+    LIST_DTYPE(list) _args[] = {__VA_ARGS__};\
+    list_pushback(list, sizeof(_args)/sizeof(*_args), _args);\
 })
 
 /**
@@ -53,8 +53,8 @@ typedef void *AnyList;
  * the type of data supported depends on the list type
  */
 #define LIST_PUSHFRONT(list, ...) ({\
-    LIST_DTYPE(list) v[] = {__VA_ARGS__};\
-    list_pushfront(list, sizeof(v)/sizeof(*v), v);\
+    LIST_DTYPE(list) _args[] = {__VA_ARGS__};\
+    list_pushfront(list, sizeof(_args)/sizeof(*_args), _args);\
 })
 
 /**
@@ -120,8 +120,8 @@ typedef void *AnyList;
  * * You must call `list_delete()` to free alocated memory
  */
 #define LIST_CREATE(type, ...) ({\
-    __typeof__(type) v[] = {__VA_ARGS__};\
-    (type##List)list_create(sizeof(type), sizeof(v)/sizeof(*v), v);\
+    __typeof__(type) _args[] = {__VA_ARGS__};\
+    (type##List)list_create(sizeof(type), sizeof(_args)/sizeof(*_args), _args);\
 })
 
 

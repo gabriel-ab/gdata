@@ -4,6 +4,9 @@
 
 Stack stack_create(size_t data_size, size_t initial_size, void *initial_values) {
     Stack stack = malloc(sizeof(struct stack));
+    stack->size = initial_size;
+    stack->head = NULL;
+    stack->internal.pop = NULL;
     *(size_t*)&stack->internal.dsize = data_size;
     if (initial_values)
         for (size_t i = 0; i < initial_size; i++)
