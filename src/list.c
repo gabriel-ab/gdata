@@ -6,15 +6,9 @@
  * 
  */
 
-#include "list.h"
+#include "gdata/list.h"
 #include <stdlib.h>
 #include <string.h>
-
-struct list_node {
-    struct list_node* next;
-    struct list_node* back;
-    char data[];
-};
 
 /* 
  * Allocate a list_node and return the pointer
@@ -39,11 +33,11 @@ static struct list_node * _list_find(struct list_node * node, int index) {
 }
 
 /* 
- * charList constrained index finder 
+ * List constrained index finder 
  * if index is negative, searchs in reverse. 
  * return: the node
  */
-static struct list_node * _list_node_at(charList list, int index) {
+static struct list_node * _list_node_at(List list, int index) {
     return _list_find((index < 0) ? list->tail : list->head, index);
 }
 
@@ -54,7 +48,7 @@ void * list_at(AnyList list, int index) {
 
 // ### Constructor
 void* list_create(size_t data_size, size_t initial_size, void * initial_values) {
-    charList list = calloc(1,sizeof(*list));
+    List list = calloc(1,sizeof(*list));
     *(size_t*)&list->internal.dsize = data_size;
     if (initial_values)
         list_pushback(list, initial_size, initial_values);
@@ -65,7 +59,7 @@ void* list_create(size_t data_size, size_t initial_size, void * initial_values) 
 
 // Push value in list's end.
 void list_pushback(AnyList list, size_t num_elements, void *data) {
-    charList l = list;
+    List l = list;
     while (num_elements--) {
         struct list_node *new_node = _list_new_node(l->internal.dsize);
 
@@ -85,7 +79,7 @@ void list_pushback(AnyList list, size_t num_elements, void *data) {
 
 // Push value in list's begin.
 void list_pushfront(AnyList list, size_t num_elements, void * data) {
-    charList _list = list;
+    List _list = list;
     while (num_elements--) {
         struct list_node *new_node = _list_new_node(_list->internal.dsize);
 
@@ -105,7 +99,7 @@ void list_pushfront(AnyList list, size_t num_elements, void * data) {
 
 //Push value in the index especified
 void list_push(AnyList _list, int index, void * item) {
-    charList list = _list;
+    List list = _list;
     struct list_node *old_node = _list_node_at(list, index);
     if (old_node == NULL) return;
 
@@ -138,7 +132,7 @@ void list_push(AnyList _list, int index, void * item) {
 
 // Retrieve the in the index specified
 void *list_pop_node(AnyList _list, void* _node) {
-    charList list = _list;
+    List list = _list;
     struct list_node* node = _node;
 
     if (node == list->tail)
@@ -163,7 +157,7 @@ void* list_pop(AnyList list, int index) {
 
 // Resize a list allocating new memory,
 void list_resize(AnyList list, unsigned int new_size) {
-    charList _list = list;
+    List _list = list;
     if (_list->size < new_size) {
         int count = new_size -_list->size;
         list_pushback(_list, count, NULL);
@@ -176,8 +170,8 @@ void list_resize(AnyList list, unsigned int new_size) {
 
 // Returns a copy of `src`
 AnyList list_copy(AnyList src) {
-    charList list = src;
-    charList dst = list_create(list->internal.dsize, 0, 0);
+    List list = src;
+    List dst = list_create(list->internal.dsize, 0, 0);
     struct list_node* node = list->head;
     while (node) {
         list_pushback(dst, 1, node->data);
@@ -187,7 +181,7 @@ AnyList list_copy(AnyList src) {
 }
 
 void list_clear(AnyList list) {
-    charList _list = list;
+    List _list = list;
     while (_list->size > 0)
         list_pop(list, -1);
     free(_list->internal.pop);
@@ -196,7 +190,7 @@ void list_clear(AnyList list) {
 
 // convert to a array
 void list_to_array(AnyList list, void* result) {
-    charList _list = list;
+    List _list = list;
     struct list_node *n = _list->head;
     for (size_t i = 0; i < _list->size; i++) {
         void * array_element = (char*)result + i*_list->internal.dsize;
@@ -211,8 +205,8 @@ void list_delete(AnyList list) {
 }
 
 void* list_sublist(AnyList list, unsigned int begin, unsigned int end) {
-    charList _list = list;
-    charList result = list_create(_list->internal.dsize, 0, 0);
+    List _list = list;
+    List result = list_create(_list->internal.dsize, 0, 0);
     struct list_node* node = _list->head;
 
     end -= begin;

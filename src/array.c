@@ -1,4 +1,4 @@
-#include "array.h"
+#include "gdata/array.h"
 #include <stdlib.h>
 #include <string.h>
 
