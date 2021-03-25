@@ -15,7 +15,7 @@
 // ===== MACROS ===== //
 
 /**
- * ### Define a new type of List
+ * @brief Define a new type of List
  */
 #define LIST_TYPEDEF(type)\
 typedef struct type ## list {\
@@ -33,9 +33,13 @@ typedef struct type ## list {\
 #define LIST_DTYPE(list) __typeof__(*list->internal.dtype)
 
 /**
- * ## Push itens in the front of the list 
- * the type of data supported depends on the list type
- * ex: intList -> LIST_PUSHBACK(list, 1, 2, ...)
+ * @brief Push itens at back of the list.
+ * The type of data supported depends on the list type
+ * 
+ * @param list: Any type of list. 
+ * @param __VA_ARGS__: sequence of values to push.
+ * 
+ * @ex: intList -> LIST_PUSHBACK(list, 1, 2, ...)
  */
 #define LIST_PUSHBACK(list, ...) ({\
     LIST_DTYPE(list) _args[] = {__VA_ARGS__};\
@@ -43,9 +47,13 @@ typedef struct type ## list {\
 })
 
 /**
- * Push itens in the front of the list
+ * @brief Push itens in the front of the list
  * the type of data supported depends on the list type
- * ex: intList -> LIST_PUSHBACK(list, 1, 2, ...)
+ * 
+ * @param list: Any type of list. 
+ * @param __VA_ARGS__: sequence of values to push.
+ * 
+ * @ex: intList -> LIST_PUSHBACK(list, 1, 2, ...)
  */
 #define LIST_PUSHFRONT(list, ...) ({\
     LIST_DTYPE(list) _args[] = {__VA_ARGS__};\
@@ -53,40 +61,42 @@ typedef struct type ## list {\
 })
 
 /**
- * Pop the element at the given index
- * if `index` is negative, searchs in reverse.
+ * @brief Pop the element at the given index.
+ * if index is negative, searchs in reverse.
  */
 #define LIST_POP(list, index) (*(LIST_DTYPE(list)*)list_pop(list, index))
 
 /**
- * Pop list's tail 
- * returns: list's data type
+ * @brief Pop list's tail 
+ * @returns list's internal data type. ex: intList -> int
  */
 #define LIST_POPBACK(list) (*(LIST_DTYPE(list)*)list_pop(list, -1))
 
 /**
- * Pop list's head 
- * returns: list's data type
+ * @brief Pop list's head 
+ * @returns list's internal data type. ex: intList -> int
  */
 #define LIST_POPFRONT(list) (*(LIST_DTYPE(list)*)list_pop(list, 0))
 
 /**
- * Pop the passed node, checking and updating list
- * returns: list's data type
+ * @brief Pop the passed node, checking and updating list
+ * @returns list's internal data type. ex: intList -> int
  */
 #define LIST_POPNODE(list, node) (*(LIST_DTYPE(list)*)list_pop_node(list,node))
 
 
 /**
- * ## Get element at the given index
+ * @brief Get element at the given index.
  * if negative, search in reverse
  */
 #define LIST_AT(list, index) (*(LIST_DTYPE(list)*)list_at(list, index))
 
 /** 
- * ## `for` wrapper for AnyList
- * cursor: variable name to use within the scope 
- * use `cursor->data` to list's data at current iteration
+ * @brief for wrapper for AnyList
+ * 
+ * @param cursor: variable name to use within the scope 
+ * 
+ * @note use cursor->data to list's data at current iteration
  */
 #define LIST_FOR_EACH(cursor, list)\
     for (\
@@ -100,19 +110,16 @@ typedef struct type ## list {\
 
 
 /**
- * Same as `list_push` but item is passed by value
+ * @brief Same as list_push() but item is passed by value
  */
 #define LIST_PUSH(list, index, item) list_push(list, index, ((LIST_DTYPE(list)[]){item}))
 
 /** 
- * ### Create a list and push values if passed
+ * @brief Create a list and push values if passed.
+ * You must call list_delete() to free alocated memory
  * 
- * sage:
- * * Ex: `LIST_CREATE(int)`
- * * Ex: `LIST_CREATE(double, 2.7, 3.2, 0.5, 0.1, 0.9)`
- * 
- * Obsevations:
- * * You must call `list_delete()` to free alocated memory
+ * @param type: any defined type. ex: int, float, etc...
+ * @param __VA_ARGS__: values to initialize list
  */
 #define LIST_CREATE(type, ...) ({\
     __typeof__(type) _args[] = {__VA_ARGS__};\
@@ -129,7 +136,7 @@ struct list_node {
     char data[];
 };
 
-// Generic List
+// Generic List (macros do not work)
 typedef struct List {\
     struct list_node* head;\
     struct list_node* tail;\
@@ -146,77 +153,102 @@ typedef void* AnyList;
 
 // ===== FUNCTIONS ===== //
 
-
 /** 
- * ### Create a list
- * `LIST_CREATE()` may be simpler to use
+ * @brief Create a list.
+ * see LIST_CREATE() macro
  * 
- * Args:
- * * data_size: data size in bytes (all elements will allocate this size)
- * * initial_size: initial size of the list
- * * initial_values: pointer to data that will be pushed first
+ * @param dsize: size of each element in bytes
+ * @param initial_size: initial size of the list. (0 is valid)
+ * @param initial_values: pointer to data that will be pushed first. (0 is valid)
  */
-void* list_create(size_t data_size, size_t initial_size, void *initial_values);
+void* list_create(size_t dsize, size_t initial_size, void *initial_values);
 
 /**
- * Push `num_elements` in `data` to list's end.
- * obs: `LIST_PUSHBACK()` may be simpler to use
+ * @brief Push `num_elements` in `data` to list's end.
+ * 
+ * @param list: List, intList, floatList, etc...
+ * @param num_elements: number of elements in data
+ * @param data: array with values to be pushed (values will be copied)
+ * 
+ * @note see LIST_PUSHBACK(), it may be simpler to use
  */
 void list_pushback(AnyList list, size_t num_elements, void *data);
 
 /**
- * Push `num_elements` in `data` to list's begin.
- * obs: `LIST_PUSHFRONT()` may be simpler to use
+ * @brief Push `num_elements` in `data` to list's begin.
+ * 
+ * @param list: List, intList, floatList, etc...
+ * @param num_elements: number of elements in data
+ * @param data: array with values to be pushed (values will be copied)
+ * 
+ * @note see LIST_PUSHFRONT(), it may be simpler to use
  */
 void list_pushfront(AnyList list, size_t num_elements, void *data);
 
 /** 
- * Push item in the index especified
- * if `index` is negative, searchs in reverse. 
- * obs: `LIST_PUSH()` may be simpler to use
+ * @brief Push item in the index especified.
+ * 
+ * @param list: List, intList, floatList, etc...
+ * @param index: position in list. if negative, search in reverse
+ * @param item: reference to data, values will be copied
  */
 void list_push(AnyList _list, int index, void * item);
 
 /**
- * Pop the element at index
- * if `index` is negative, searchs in reverse.
+ * @brief Pop the element at index
  * 
- * returns: value from deleted node
- * obs: `LIST_POP()` may be simpler to use
+ * @param list: List, intList, floatList, etc...
+ * @param index: position in list. if negative, search in reverse
+ * 
+ * @returns: reference to value in deleted node
+ * 
+ * @note LIST_POP() return value instead of reference
  */
 void* list_pop(AnyList list, int index);
 
 /**
- * Find a given index of list and return the data pointer
- * if index is negative, searchs in reverse.
- * obs: `LIST_AT()` may be simpler to use
+ * @brief Find a given index of list and return the data pointer
+ * 
+ * @param list: List, intList, floatList, etc...
+ * @param index: position in list. if negative, search in reverse
+ * 
+ * @returns: reference to value
+ * 
+ * @note LIST_AT() return value instead of reference
  */
 void* list_at(AnyList list, int index);
 
 /**
- * Receive some node from list and remove it properly
+ * @brief Receive some node from list and remove it properly
  * 
- * returns: value from deleted node
- * obs: `LIST_POP_NODE()` may be simpler to use
+ * @param list: List, intList, floatList, etc...
+ * @param node: any "struct list_node" or cursor from LIST_FOR_EACH() wrapper
+ * 
+ * @returns: reference to value in deleted node
+ * 
+ * @note: LIST_POP_NODE() return value instead of reference
  */
-void* list_pop_node(AnyList _list, void* node);
+void* list_pop_node(AnyList list, void* node);
 
 // Resize a list allocating new memory,
 void list_resize(AnyList list, unsigned int new_size);
 
-// Copy all content of src list
-AnyList list_copy(AnyList src);
+/**
+ * @brief Copy all content of src list to dst
+ * @return: dst list
+ */
+AnyList list_copy(AnyList dst, AnyList src);
 
-// Create a sub list using the passed interval [begin, end)
+/// @brief Create a sub list using the passed interval [begin, end)
 AnyList list_sublist(AnyList list, unsigned int begin, unsigned int end);
 
-// Deletes all nodes and clear the list
+/// @brief Deletes all nodes and clear the list
 void list_clear(AnyList list);
 
-// Copy values to a array. (be sure to have suficient space in the array)
+/// @brief Copy values to a array. (be sure to have suficient space in the array)
 void list_to_array(AnyList list, void* result);
 
-// free allocated memory
+/// @brief free allocated memory
 void list_delete(AnyList list);
 
 // Defining basic data lists

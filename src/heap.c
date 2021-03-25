@@ -64,15 +64,15 @@ static void heap_downheapify(Heap heap) {
     memcpy(heap->at + s*p, x, s);
 }
 
-void* heap_create(size_t max_size, size_t data_size, comparator cmp, 
+void* heap_create(size_t size, size_t dsize, comparator cmp, 
                   enum HeapOrder order) {
-    Heap heap = malloc(sizeof(struct heap) + data_size*(max_size+1));
-    memset(heap->at, 0, data_size*max_size);
-    heap->max = max_size;
+    Heap heap = malloc(sizeof(struct heap) + dsize*(size+1));
+    memset(heap->at, 0, dsize*size);
+    heap->max = size;
     heap->used = 0;
     
     *(comparator*)&heap->internal.cmp = cmp;
-    *(size_t*)&heap->internal.dsize = data_size;
+    *(size_t*)&heap->internal.dsize = dsize;
     *(enum HeapOrder*)&heap->order = order;
     return heap;
 }

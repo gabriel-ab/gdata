@@ -17,16 +17,11 @@
  *     > You must call `free(array)` later
  */
 #pragma once
-#include <stddef.h>
+#include <stdlib.h>
 
-/* 
- * ### Declares a array of type
+/**
+ * @brief Declares a array of type.
  * The type `typeArray` is will be avaliable to you
- * 
- * if you want to use a type like `unsigned int`, make an alias
- * ex: 
- * > typedef unsigned int uint; 
- * > ARRAY_TYPEDEF(uint);
  */
 #define ARRAY_TYPEDEF(type)\
 typedef struct {\
@@ -50,7 +45,8 @@ typedef void* AnyArray;
 // ===== MACROS ===== //
 
 
-/* ### Create a new Array with zeros
+/**
+ * @brief Create a new Array with zeros.
  * 
  * Obs: you must call `free(array)` later
  */
@@ -58,11 +54,12 @@ typedef void* AnyArray;
     (type##Array)array_create(sizeof(type), size, 0)
 
 
-/* ### Create a new Array based on a set of values
+/**
+ * @brief Create a new Array based on a set of values.
  * 
- * equivalent to:
- *      type array[] = {values...};
- * 
+ * @param type: any defined type. ex: int, float, etc...
+ * @param __VA_ARGS__: values in braces. ex: {1,2,3} for ints
+ *
  * usage:
  *      ARRAY_CREATE(int, {0,2,4})
  *      ARRAY_CREATE(float, {2.3f, 0.1f})
@@ -74,30 +71,39 @@ typedef void* AnyArray;
     (type##Array)array_create(sizeof(type), sizeof(_arr)/sizeof(type), _arr);\
 })
 
-/* ### Resize a array and return it
- * the array pointer can change, so, reassign it
- */
+ /// @brief Resize a array
 #define ARRAY_RESIZE(array, new_size)\
     array_resize(&array, sizeof(*array->at), new_size)
 
-// ### Create a new array combining `a` and `b`
+/// Create a new array combining `a` and `b`
 #define ARRAY_JOIN(a,b) array_join(a,b,sizeof(*a->at))
 
-// ### Appends `b` to `a`
+/// Appends `b` to `a`
 #define ARRAY_APPEND(a,b) array_append(&a, b,sizeof(*a->at))
 
 
 // ===== FUNCTIONS ===== //
 
 
-// ### Create a new Array with values
-void* array_create(size_t data_size, size_t size, void *initial_values);
+/**
+ * @brief Create a new Array with values
+ * 
+ * @param dsize: size of each element in bytes
+ * @param size: initial size of the list. (non zero value)
+ * @param initial_values: pointer to data that will be pushed first. (0 is valid)
+ */
+AnyArray array_create(size_t dsize, size_t size, void *initial_values);
 
-// ### Reallocates an existing array
-void array_resize(AnyArray *array, size_t data_size, size_t new_size);
+/** 
+ * @brief Reallocates an existing array
+ * 
+ * @param array: reference to array
+ * @param dsize: size of each element in bytes
+ */
+void array_resize(AnyArray *array, size_t dsize, size_t new_size);
 
-// ### Create a new array combining `a` and `b`
-AnyArray array_join(AnyArray a, AnyArray b, size_t data_size);
+/// Create a new array combining `a` and `b`
+AnyArray array_join(AnyArray a, AnyArray b, size_t dsize);
 
-// ### appends `b` to `a`
-void array_append(AnyArray *a, AnyArray b, size_t data_size);
+/// appends `b` to `a`
+void array_append(AnyArray *a, AnyArray b, size_t dsize);

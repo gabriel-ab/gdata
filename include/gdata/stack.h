@@ -24,7 +24,12 @@ typedef struct stack {
 
 
 
-/* ### Creates a new Stack and attribute some values if passed
+/**
+ * @brief Creates a new Stack and attribute some values if passed
+ * 
+ * @param type: any defined type. ex: int, float, etc...
+ * @param __VA_ARGS__: values to initialize stack
+ * 
  * ex:
  *   STACK_CREATE(float)
  *   STACK_CREATE(int, 1,2,3)
@@ -38,30 +43,34 @@ typedef struct stack {
 // ===== FUNCTIONS ===== //
 
 
-// Create a new stack with values if passed
-Stack stack_create(size_t data_size, size_t initial_size, void *initial_values);
+/**
+ * @brief Create a new stack with values if passed
+ * 
+ * @param dsize: data size in bytes (all elements will allocate this size)
+ * @param initial_size: initial size of the list. (0 is valid)
+ * @param initial_values: pointer to data that will be pushed first. (0 is valid)
+ */
+Stack stack_create(size_t dsize, size_t initial_size, void *initial_values);
 
 // Free a created stack
 void stack_delete(Stack stack);
 
-/* ### Push a new item into the stack
+/**
+ * @brief Push a new item into the stack
  * 
- * usage example:
- * > stack_push(stack, (int[]){32}) // literal
- * 
- * > int myInt = 32;
- * > stack_push(stack, &myInt)      // variable
+ * @param data reference to your data
  */
 void stack_push(Stack stack, void *data);
 
-/* ### Pop the last item from the stack
- * aways deference it
- * ex: `int value = *(int*)stack_pop(stack);`
+/**
+ * @brief Pop the last item from the stack
+ * 
+ * @return reference to value (will last until next call)
  */
 void* stack_pop(Stack stack);
 
-// ### Remove all elements
+/// @brief Remove all elements
 void stack_clear(Stack stack);
 
-// Create a reversed stack
-Stack stack_reverse(Stack stack);
+/// @brief Reverse stack
+void stack_reverse(Stack stack);

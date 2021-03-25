@@ -28,19 +28,19 @@ static void resize_left(void* vector, signed long change) {
     v->at = v->internal.begin + v->internal.offset * v->internal.dsize;
 }
 
-void* vector_create(size_t data_size, size_t initial_size, void* initial_values) {
+AnyVector vector_create(size_t dsize, size_t initial_size, void* initial_values) {
     charVector vector = malloc(sizeof(*vector));
     if (vector) {
         size_t alloc_size = initial_size;
         vector->size = initial_size;
         vector->internal.offset = 0;
         vector->internal.alloc = alloc_size;
-        vector->internal.dsize = data_size;
+        vector->internal.dsize = dsize;
 
-        vector->internal.begin = vector->at = initial_size ? calloc(alloc_size, data_size) : NULL;
+        vector->internal.begin = vector->at = initial_size ? calloc(alloc_size, dsize) : NULL;
 
         if (initial_values) 
-            memcpy(vector->at, initial_values, initial_size*data_size);
+            memcpy(vector->at, initial_values, initial_size*dsize);
     }
     return (void*)vector;
 }

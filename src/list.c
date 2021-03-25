@@ -47,9 +47,9 @@ void * list_at(AnyList list, int index) {
 }
 
 // ### Constructor
-void* list_create(size_t data_size, size_t initial_size, void * initial_values) {
+void* list_create(size_t dsize, size_t initial_size, void * initial_values) {
     List list = calloc(1,sizeof(*list));
-    *(size_t*)&list->internal.dsize = data_size;
+    *(size_t*)&list->internal.dsize = dsize;
     if (initial_values)
         list_pushback(list, initial_size, initial_values);
     else if (initial_size)
@@ -131,22 +131,22 @@ void list_push(AnyList _list, int index, void * item) {
 }
 
 // Retrieve the in the index specified
-void *list_pop_node(AnyList _list, void* _node) {
-    List list = _list;
+void *list_pop_node(AnyList list, void* _node) {
+    List L = list;
     struct list_node* node = _node;
 
-    if (node == list->tail)
-        list->tail = node->back;
-    if (node == list->head)
-        list->head = node->next;
-    list->size--;
+    if (node == L->tail)
+        L->tail = node->back;
+    if (node == L->head)
+        L->head = node->next;
+    L->size--;
 
-    if (list->internal.pop)
-        free(list->internal.pop);
+    if (L->internal.pop)
+        free(L->internal.pop);
 
     if (node->back) node->back->next = node->next;
     if (node->next) node->next->back = node->back;
-    list->internal.pop = node;
+    L->internal.pop = node;
     
     return node->data;
 }
@@ -168,11 +168,9 @@ void list_resize(AnyList list, unsigned int new_size) {
     }
 }
 
-// Returns a copy of `src`
-AnyList list_copy(AnyList src) {
-    List list = src;
-    List dst = list_create(list->internal.dsize, 0, 0);
-    struct list_node* node = list->head;
+AnyList list_copy(AnyList dst, AnyList src) {
+    list_clear(dst);
+    struct list_node* node = ((List)src)->head;
     while (node) {
         list_pushback(dst, 1, node->data);
         node = node->next;
