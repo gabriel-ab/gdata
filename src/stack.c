@@ -1,16 +1,16 @@
-#include "stack.h"
+#include "gdata/stack.h"
 #include <stdlib.h>
 #include <string.h>
 
-Stack stack_create(size_t data_size, size_t initial_size, void *initial_values) {
+Stack stack_create(size_t dsize, size_t initial_size, void *initial_values) {
     Stack stack = malloc(sizeof(struct stack));
-    stack->size = initial_size;
+    stack->size = 0;
     stack->head = NULL;
     stack->internal.pop = NULL;
-    *(size_t*)&stack->internal.dsize = data_size;
+    *(size_t*)&stack->internal.dsize = dsize;
     if (initial_values)
         for (size_t i = 0; i < initial_size; i++)
-            stack_push(stack, (char*)initial_values + i*data_size);
+            stack_push(stack, (char*)initial_values + i*dsize);
     return stack;
 }
 
@@ -48,9 +48,27 @@ void stack_clear(Stack stack) {
     stack->internal.pop = NULL;
 }
 
-Stack stack_reverse(Stack stack) {
-    Stack result = stack_create(stack->internal.dsize, 0, 0);
-    while (stack->size)
-        stack_push(result, stack_pop(stack));
-    return result;
+static struct stack_node* _stack_reverse(struct stack_node* node, struct stack_node* prev) {
+    struct stack_node* res;
+    if (node) {
+        res = _stack_reverse(node->next, node);
+        node->next = prev;
+    } else {
+        res = prev;
+    }
+    return res;
+}
+
+void stack_reverse(Stack stack) {
+    struct stack_node *nodes[stack->size];
+    nodes[0] = stack->head;
+
+    for (int i = 1; i < stack->size; i++) {
+        nodes[i] = nodes[i -1]->next;
+    }
+    for (int i = stack->size -1; i > 0; i--) {
+        nodes[i]->next = nodes[i -1];
+    }
+    nodes[0]->next = NULL;
+    stack->head = nodes[stack->size -1];
 }
