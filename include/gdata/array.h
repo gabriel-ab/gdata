@@ -50,15 +50,14 @@ typedef void* AnyArray;
  * 
  * Obs: you must call `free(array)` later
  */
-#define ARRAY_ALLOCATE(type, size)\
-    (type##Array)array_create(sizeof(type), size, 0)
+#define ARRAY_ALLOCATE(type, size) (type##Array)array_create(sizeof(type), size, 0)
 
 
 /**
  * @brief Create a new Array based on a set of values.
  * 
  * @param type: any defined type. ex: int, float, etc...
- * @param __VA_ARGS__: values in braces. ex: {1,2,3} for ints
+ * @param __VA_ARGS__: values in curly braces. ex: {1,2,3}
  *
  * usage:
  *      ARRAY_CREATE(int, {0,2,4})
@@ -71,7 +70,7 @@ typedef void* AnyArray;
     (type##Array)array_create(sizeof(type), sizeof(_arr)/sizeof(type), _arr);\
 })
 
- /// @brief Resize a array
+/// @brief Resize a array
 #define ARRAY_RESIZE(array, new_size)\
     array_resize(&array, sizeof(*array->at), new_size)
 
@@ -90,20 +89,20 @@ typedef void* AnyArray;
  * 
  * @param dsize: size of each element in bytes
  * @param size: initial size of the list. (non zero value)
- * @param initial_values: pointer to data that will be pushed first. (0 is valid)
+ * @param initial_values: array of data to be pushed first. (NULL set all elements to 0)
  */
 AnyArray array_create(size_t dsize, size_t size, void *initial_values);
 
 /** 
- * @brief Reallocates an existing array
+ * @brief Reallocates an existing array (see: ARRAY_RESIZE macro)
  * 
  * @param array: reference to array
  * @param dsize: size of each element in bytes
  */
 void array_resize(AnyArray *array, size_t dsize, size_t new_size);
 
-/// Create a new array combining `a` and `b`
+/// Create a new array combining `a` and `b` (see: ARRAY_JOIN macro)
 AnyArray array_join(AnyArray a, AnyArray b, size_t dsize);
 
-/// appends `b` to `a`
+/// appends `b` to `a` (see: ARRAY_APPEND macro)
 void array_append(AnyArray *a, AnyArray b, size_t dsize);

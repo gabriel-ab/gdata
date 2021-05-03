@@ -1,18 +1,6 @@
 #include "gdata/heap.h"
 
-static void swap(void *a, void *b, size_t dsize) {
-    char o[dsize];
-    memcpy(o, a, dsize);
-    memcpy(a, b, dsize);
-    memcpy(b, o, dsize);
-}
-
-static _Bool check_by_type(int cmp, enum HeapOrder order) {
-    return (order == MIN_HEAP && cmp > 0) || (order == MAX_HEAP && cmp < 0);
-}
-
 static void heap_upheapify(Heap heap) {
-
     size_t k = heap->used;
     size_t s = heap->internal.dsize;
 
@@ -21,13 +9,17 @@ static void heap_upheapify(Heap heap) {
     while(k >= 2) {
         void *a = heap->at + s*(k/2); // father
         void *b = heap->at + s*k;   // kid
-        int cmp = heap->internal.cmp ? heap->internal.cmp(a, b) : \
-            memcmp(a,b,heap->internal.dsize);
-        _Bool should_swap = check_by_type(cmp, heap->order);
-        if (should_swap) {
-            swap(a, b, s);
+        int cmp = heap->internal.cmp(a, b);
+        
+        if ((heap->order == MIN_HEAP && cmp > 0) ||
+            (heap->order == MAX_HEAP && cmp < 0)) {
+            char temp[s];
+            memcpy(temp, a, s);
+            memcpy(a, b, s);
+            memcpy(b, temp, s);
             k /= 2;
-        } else break;
+        }
+        else break;
     }
 }
 
@@ -47,9 +39,9 @@ static void heap_downheapify(Heap heap) {
         if (f < m) {
             void *brother = child + s; // right child
             cmp = heap->internal.cmp(child, brother);
-            // MinHeap: get smallest child
-            // MaxHeap: get biggest child
-            if (check_by_type(cmp, heap->order)) {
+
+            if ((heap->order == MIN_HEAP && cmp > 0) ||
+                (heap->order == MAX_HEAP && cmp < 0)) {
                 child = brother;
                 f++;
             }
