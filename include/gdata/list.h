@@ -27,7 +27,7 @@ typedef struct type ## list {\
         const size_t dsize;\
         type dtype[];\
     } internal;\
-} *type ## List
+} type ## List
 
 // get list's type witch is holded by internal.dtype
 #define LIST_DTYPE(list) __typeof__(*list->internal.dtype)
@@ -148,8 +148,8 @@ typedef struct List {\
 } *List;
 
 // AnyList (intList, floatList, ...) 
-// just for disabling compiler warning 
-typedef void* AnyList;
+// just to tell which kind of argument is expected
+typedef void AnyList;
 
 // ===== FUNCTIONS ===== //
 
@@ -172,7 +172,7 @@ void* list_create(size_t dsize, size_t initial_size, void *initial_values);
  * 
  * @note see LIST_PUSHBACK(), it may be simpler to use
  */
-void list_pushback(AnyList list, size_t num_elements, void *data);
+void list_pushback(AnyList* list, size_t num_elements, void *data);
 
 /**
  * @brief Push `num_elements` in `data` to list's begin.
@@ -183,7 +183,7 @@ void list_pushback(AnyList list, size_t num_elements, void *data);
  * 
  * @note see LIST_PUSHFRONT(), it may be simpler to use
  */
-void list_pushfront(AnyList list, size_t num_elements, void *data);
+void list_pushfront(AnyList* list, size_t num_elements, void *data);
 
 /** 
  * @brief Push item in the index especified.
@@ -192,7 +192,7 @@ void list_pushfront(AnyList list, size_t num_elements, void *data);
  * @param index: position in list. if negative, search in reverse
  * @param item: reference to data, values will be copied
  */
-void list_push(AnyList _list, int index, void * item);
+void list_push(AnyList* _list, int index, void * item);
 
 /**
  * @brief Pop the element at index
@@ -204,7 +204,7 @@ void list_push(AnyList _list, int index, void * item);
  * 
  * @note LIST_POP() return value instead of reference
  */
-void* list_pop(AnyList list, int index);
+void* list_pop(AnyList* list, int index);
 
 /**
  * @brief Find a given index of list and return the data pointer
@@ -216,7 +216,7 @@ void* list_pop(AnyList list, int index);
  * 
  * @note LIST_AT() return value instead of reference
  */
-void* list_at(AnyList list, int index);
+void* list_at(AnyList* list, int index);
 
 /**
  * @brief Receive some node from list and remove it properly
@@ -228,28 +228,28 @@ void* list_at(AnyList list, int index);
  * 
  * @note: LIST_POP_NODE() return value instead of reference
  */
-void* list_pop_node(AnyList list, void* node);
+void* list_pop_node(AnyList* list, void* node);
 
 // Resize a list allocating new memory,
-void list_resize(AnyList list, unsigned int new_size);
+void list_resize(AnyList* list, unsigned int new_size);
 
 /**
  * @brief Copy all content of src list to dst
  * @return: dst list
  */
-AnyList list_copy(AnyList dst, AnyList src);
+AnyList* list_copy(AnyList* dst, AnyList* src);
 
 /// @brief Create a sub list using the passed interval [begin, end)
-AnyList list_sublist(AnyList list, unsigned int begin, unsigned int end);
+AnyList* list_sublist(AnyList* list, unsigned int begin, unsigned int end);
 
 /// @brief Deletes all nodes and clear the list
-void list_clear(AnyList list);
+void list_clear(AnyList* list);
 
 /// @brief Copy values to a array. (be sure to have suficient space in the array)
-void list_to_array(AnyList list, void* result);
+void list_to_array(AnyList* list, void* result);
 
 /// @brief free allocated memory
-void list_delete(AnyList list);
+void list_delete(AnyList* list);
 
 // Defining basic data lists
 LIST_TYPEDEF(int);

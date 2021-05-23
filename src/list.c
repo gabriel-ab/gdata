@@ -42,7 +42,7 @@ static struct list_node * _list_node_at(List list, int index) {
 }
 
 
-void * list_at(AnyList list, int index) {
+void * list_at(AnyList* list, int index) {
     return _list_node_at(list, index)->data;
 }
 
@@ -58,7 +58,7 @@ void* list_create(size_t dsize, size_t initial_size, void * initial_values) {
 }
 
 // Push value in list's end.
-void list_pushback(AnyList list, size_t num_elements, void *data) {
+void list_pushback(AnyList* list, size_t num_elements, void *data) {
     List l = list;
     while (num_elements--) {
         struct list_node *new_node = _list_new_node(l->internal.dsize);
@@ -78,7 +78,7 @@ void list_pushback(AnyList list, size_t num_elements, void *data) {
 }
 
 // Push value in list's begin.
-void list_pushfront(AnyList list, size_t num_elements, void * data) {
+void list_pushfront(AnyList* list, size_t num_elements, void * data) {
     List _list = list;
     while (num_elements--) {
         struct list_node *new_node = _list_new_node(_list->internal.dsize);
@@ -98,7 +98,7 @@ void list_pushfront(AnyList list, size_t num_elements, void * data) {
 }
 
 //Push value in the index especified
-void list_push(AnyList _list, int index, void * item) {
+void list_push(AnyList* _list, int index, void * item) {
     List list = _list;
     struct list_node *old_node = _list_node_at(list, index);
     if (old_node == NULL) return;
@@ -131,7 +131,7 @@ void list_push(AnyList _list, int index, void * item) {
 }
 
 // Retrieve the in the index specified
-void *list_pop_node(AnyList list, void* _node) {
+void *list_pop_node(AnyList* list, void* _node) {
     List L = list;
     struct list_node* node = _node;
 
@@ -151,12 +151,12 @@ void *list_pop_node(AnyList list, void* _node) {
     return node->data;
 }
 
-void* list_pop(AnyList list, int index) {
+void* list_pop(AnyList* list, int index) {
     return list_pop_node(list, _list_node_at(list, index));
 }
 
 // Resize a list allocating new memory,
-void list_resize(AnyList list, unsigned int new_size) {
+void list_resize(AnyList* list, unsigned int new_size) {
     List _list = list;
     if (_list->size < new_size) {
         int count = new_size -_list->size;
@@ -168,7 +168,7 @@ void list_resize(AnyList list, unsigned int new_size) {
     }
 }
 
-AnyList list_copy(AnyList dst, AnyList src) {
+AnyList* list_copy(AnyList* dst, AnyList* src) {
     list_clear(dst);
     struct list_node* node = ((List)src)->head;
     while (node) {
@@ -178,7 +178,7 @@ AnyList list_copy(AnyList dst, AnyList src) {
     return dst;
 }
 
-void list_clear(AnyList list) {
+void list_clear(AnyList* list) {
     List _list = list;
     while (_list->size > 0)
         list_pop(list, -1);
@@ -187,7 +187,7 @@ void list_clear(AnyList list) {
 }
 
 // convert to a array
-void list_to_array(AnyList list, void* result) {
+void list_to_array(AnyList* list, void* result) {
     List _list = list;
     struct list_node *n = _list->head;
     for (size_t i = 0; i < _list->size; i++) {
@@ -197,12 +197,12 @@ void list_to_array(AnyList list, void* result) {
     }
 }
 
-void list_delete(AnyList list) {
+void list_delete(AnyList* list) {
     list_clear(list);
     free(list);
 }
 
-void* list_sublist(AnyList list, unsigned int begin, unsigned int end) {
+void* list_sublist(AnyList* list, unsigned int begin, unsigned int end) {
     List _list = list;
     List result = list_create(_list->internal.dsize, 0, 0);
     struct list_node* node = _list->head;
