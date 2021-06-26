@@ -178,3 +178,9 @@ void* vector_at(void* vector, size_t index);
 
 // Destructor
 void vector_delete(AnyVector vector);
+
+// Obs: the return is a new vector, then you may free it later
+AnyVector vector_copy(AnyVector input);
+
+// Creates a new vector from a slice of another one
+AnyVector vector_slice(AnyVector vector, unsigned int begin, unsigned int end);

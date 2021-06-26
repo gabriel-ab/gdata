@@ -7,14 +7,15 @@
  * Usage:
  *   call `ARRAY_TYPEDEF(type)` before all the code 
  *   and use `typeArray` as your a array of type
- * 
- *   Ex: 
- *      ARRAY_TYPEDEF(int);
- *      intArray array1 = ARRAY_CREATE(int, {1,2,3});
- *      intArray array2 = ARRAY_ALLOCATE(int, 10);
  *
- *   Obs:
- *     > You must call `free(array)` later
+ * Ex: 
+ *   ARRAY_TYPEDEF(int);
+ *   intArray array1 = ARRAY_CREATE(int, {1,2,3});
+ *   intArray array2 = ARRAY_ALLOCATE(int, 10);
+ *
+ * Obs:
+ *   > every array has fixed size
+ *   > You must call `free(array)` later
  */
 #pragma once
 #include <stdlib.h>
@@ -26,6 +27,7 @@
 #define ARRAY_TYPEDEF(type)\
 typedef struct {\
     size_t size;\
+    size_t dsize;\
     type at[];\
 } *type##Array
 
@@ -53,7 +55,6 @@ typedef void* AnyArray;
 #define ARRAY_ALLOCATE(type, size)\
     (type##Array)array_create(sizeof(type), size, 0)
 
-
 /**
  * @brief Create a new Array based on a set of values.
  * 
@@ -71,19 +72,7 @@ typedef void* AnyArray;
     (type##Array)array_create(sizeof(type), sizeof(_arr)/sizeof(type), _arr);\
 })
 
- /// @brief Resize a array
-#define ARRAY_RESIZE(array, new_size)\
-    array_resize(&array, sizeof(*array->at), new_size)
-
-/// Create a new array combining `a` and `b`
-#define ARRAY_JOIN(a,b) array_join(a,b,sizeof(*a->at))
-
-/// Appends `b` to `a`
-#define ARRAY_APPEND(a,b) array_append(&a, b,sizeof(*a->at))
-
-
 // ===== FUNCTIONS ===== //
-
 
 /**
  * @brief Create a new Array with values
@@ -96,14 +85,11 @@ AnyArray array_create(size_t dsize, size_t size, void *initial_values);
 
 /** 
  * @brief Reallocates an existing array
- * 
- * @param array: reference to array
- * @param dsize: size of each element in bytes
  */
-void array_resize(AnyArray *array, size_t dsize, size_t new_size);
+AnyArray array_resize(AnyArray array, const size_t new_size);
 
 /// Create a new array combining `a` and `b`
-AnyArray array_join(AnyArray a, AnyArray b, size_t dsize);
+AnyArray array_join(AnyArray a, AnyArray b);
 
-/// appends `b` to `a`
-void array_append(AnyArray *a, AnyArray b, size_t dsize);
+/// Create a new array from another
+AnyArray array_slice(AnyArray array, unsigned int begin, unsigned int end);

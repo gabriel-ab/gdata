@@ -119,3 +119,15 @@ void vector_remove(AnyVector vector, size_t index) {
 void* vector_at(AnyVector vector, size_t index) {
     return ((charVector)vector)->at + index*((charVector)vector)->internal.dsize;
 }
+
+AnyVector vector_copy(AnyVector input) {
+    charVector vec = input;
+    return vector_create(vec->internal.dsize, vec->size, vec->at);
+}
+
+AnyVector vector_slice(AnyVector vector, unsigned int begin, unsigned int end) {
+    charVector vec = vector;
+    size_t size = end - begin;
+    void* initial_values = vec->at + begin*vec->internal.dsize;
+    return vector_create(vec->internal.dsize, size, initial_values);
+}
