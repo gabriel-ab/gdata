@@ -52,14 +52,13 @@ typedef void* AnyArray;
  * 
  * Obs: you must call `free(array)` later
  */
-#define ARRAY_ALLOCATE(type, size)\
-    (type##Array)array_create(sizeof(type), size, 0)
+#define ARRAY_ALLOCATE(type, size) (type##Array)array_create(sizeof(type), size, 0)
 
 /**
  * @brief Create a new Array based on a set of values.
  * 
  * @param type: any defined type. ex: int, float, etc...
- * @param __VA_ARGS__: values in braces. ex: {1,2,3} for ints
+ * @param __VA_ARGS__: values in curly braces. ex: {1,2,3}
  *
  * usage:
  *      ARRAY_CREATE(int, {0,2,4})
@@ -79,7 +78,7 @@ typedef void* AnyArray;
  * 
  * @param dsize: size of each element in bytes
  * @param size: initial size of the list. (non zero value)
- * @param initial_values: pointer to data that will be pushed first. (0 is valid)
+ * @param initial_values: array of data to be pushed first. (NULL set all elements to 0)
  */
 AnyArray array_create(size_t dsize, size_t size, void *initial_values);
 
