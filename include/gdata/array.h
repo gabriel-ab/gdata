@@ -19,6 +19,7 @@
  */
 #pragma once
 #include <stdlib.h>
+#include <stdbool.h>
 
 /**
  * @brief Declares a array of type.
@@ -29,7 +30,7 @@ typedef struct {\
     size_t size;\
     size_t dsize;\
     type at[];\
-} *type##Array
+} type##Array
 
 // Declaring basic data arrays
 ARRAY_TYPEDEF(char);
@@ -41,6 +42,7 @@ ARRAY_TYPEDEF(long);
 ARRAY_TYPEDEF(float);
 ARRAY_TYPEDEF(double);
 
+// Pointer to any array
 typedef void* AnyArray;
 
 
@@ -52,7 +54,7 @@ typedef void* AnyArray;
  * 
  * Obs: you must call `free(array)` later
  */
-#define ARRAY_ALLOCATE(type, size) (type##Array)array_create(sizeof(type), size, 0)
+#define ARRAY_ALLOCATE(type, size) (type##Array*)array_create(sizeof(type), size, 0)
 
 /**
  * @brief Create a new Array based on a set of values.
@@ -68,7 +70,7 @@ typedef void* AnyArray;
  */
 #define ARRAY_CREATE(type, ...) ({\
     type _arr[] = __VA_ARGS__;\
-    (type##Array)array_create(sizeof(type), sizeof(_arr)/sizeof(type), _arr);\
+    (type##Array*)array_create(sizeof(type), sizeof(_arr)/sizeof(type), _arr);\
 })
 
 // ===== FUNCTIONS ===== //
@@ -87,8 +89,24 @@ AnyArray array_create(size_t dsize, size_t size, void *initial_values);
  */
 AnyArray array_resize(AnyArray array, const size_t new_size);
 
-/// Create a new array combining `a` and `b`
+/// @brief Create a new array combining `a` and `b`
 AnyArray array_join(AnyArray a, AnyArray b);
 
-/// Create a new array from another
+
+/**
+ * @brief Create a new array from another. Interval: [begin, end)
+ */
 AnyArray array_slice(AnyArray array, unsigned int begin, unsigned int end);
+
+/**
+ * @brief Check equality between `array` and `data` considering data to be an array with same length and type
+ * 
+ * @param array AnyArray of this library
+ * @param data C array
+ */
+bool array_equals_data(AnyArray array, void* data);
+
+/**
+ * @brief Check equality between `a` and `b`
+ */
+bool array_equals(AnyArray a, AnyArray b);
