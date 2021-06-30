@@ -7,6 +7,7 @@
  */
 #pragma once
 #include <stddef.h>
+#include <stdbool.h>
 
 struct stack_node {
     struct stack_node *next;
@@ -39,6 +40,7 @@ typedef struct stack {
     stack_create(sizeof(type), sizeof(_arr)/sizeof(type), _arr);\
 })
 
+#define STACK_POP(stack, type) *(type*)stack_pop(stack)
 
 // ===== FUNCTIONS ===== //
 
@@ -74,3 +76,9 @@ void stack_clear(Stack stack);
 
 /// @brief Reverse stack
 void stack_reverse(Stack stack);
+
+/// @brief Check equaliity between each element
+bool stack_equals(Stack a, Stack b);
+
+/// @brief Check equaliity between each element (data must have the same length of the stack)
+bool stack_equals_data(Stack s, void* data);

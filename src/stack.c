@@ -72,3 +72,32 @@ void stack_reverse(Stack stack) {
     nodes[0]->next = NULL;
     stack->head = nodes[stack->size -1];
 }
+
+bool stack_equals_data(Stack s, void* data) {
+    struct stack_node *node = s->head;
+    size_t i = 0;
+    size_t dsize = s->internal.dsize;
+    while (node != NULL) {
+        void *a = node->data;
+        void *b = data + i*dsize;
+        if (memcmp(a,b, dsize) != 0)
+            return false;
+        node = node->next;
+        i++;
+    }
+    return true;
+}
+
+bool stack_equals(Stack a, Stack b) {
+    if (a->size != b->size || a->internal.dsize != b->internal.dsize)
+        return false;
+    
+    for (struct stack_node *an = a->head, *bn = b->head; 
+         an && bn; 
+         an = an->next, bn = bn->next)
+    {
+        if (memcmp(an->data, bn->data, a->internal.dsize) != 0)
+            return false;
+    }
+    return true;
+}
