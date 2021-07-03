@@ -9,21 +9,18 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-struct stack_node {
-    struct stack_node *next;
-    char data[];
-};
-
-typedef struct stack {
-    struct stack_node *head;
-    size_t size;
-    struct {
-        struct stack_node *pop;
-        const size_t dsize;
-    } internal;
-} *Stack;
-
-
+#define STACK_TYPEDEF(type)\
+typedef union stack_##type {\
+    struct {\
+        size_t size;\
+        struct {\
+            const size_t dsize;\
+            struct stack_node *pop;\
+        } internal;\
+        struct stack_node *head;\
+    };\
+    type dtype;\
+} type ## Stack
 
 /**
  * @brief Creates a new Stack and attribute some values if passed
@@ -40,7 +37,26 @@ typedef struct stack {
     stack_create(sizeof(type), sizeof(_arr)/sizeof(type), _arr);\
 })
 
-#define STACK_POP(stack, type) *(type*)stack_pop(stack)
+#define STACK_POP(stack) *(typeof(stack->dtype)*)stack_pop(stack)
+
+#define STACK_AT(stack, index) (*(typeof(stack->dtype)*)stack_at(stack, index))
+
+
+struct stack_node {
+    struct stack_node *next;
+    char data[];
+};
+
+typedef struct stack {
+    size_t size;
+    struct {
+        const size_t dsize;
+        struct stack_node *pop;
+    } internal;
+    struct stack_node *head;
+} Stack;
+
+typedef void* AnyStack;
 
 // ===== FUNCTIONS ===== //
 
@@ -52,33 +68,42 @@ typedef struct stack {
  * @param initial_size: initial size of the list. (0 is valid)
  * @param initial_values: pointer to data that will be pushed first. (0 is valid)
  */
-Stack stack_create(size_t dsize, size_t initial_size, void *initial_values);
+AnyStack stack_create(size_t dsize, size_t initial_size, void *initial_values);
 
 // Free a created stack
-void stack_delete(Stack stack);
+void stack_delete(AnyStack stack);
 
 /**
  * @brief Push a new item into the stack
  * 
  * @param data reference to your data
  */
-void stack_push(Stack stack, void *data);
+void stack_push(AnyStack stack, void *data);
+
+/// @brief Remove all elements
+void stack_clear(AnyStack stack);
+
+/// @brief Reverse stack
+void stack_reverse(AnyStack stack);
 
 /**
  * @brief Pop the last item from the stack
  * 
  * @return reference to value (will last until next call)
  */
-void* stack_pop(Stack stack);
+void* stack_pop(AnyStack stack);
 
-/// @brief Remove all elements
-void stack_clear(Stack stack);
+/// @brief Get some value from stack. index must be in [0, stack->size)
+void* stack_at(const AnyStack stack, int index);
 
-/// @brief Reverse stack
-void stack_reverse(Stack stack);
+/// @brief Get the value on head
+void* stack_value(const AnyStack stack);
+
+/// @brief Gather all data from stack to array
+void stack_to_array(const AnyStack stack, void* array);
+
+/// @brief Just copy
+AnyStack stack_copy(const AnyStack stack);
 
 /// @brief Check equaliity between each element
-bool stack_equals(Stack a, Stack b);
-
-/// @brief Check equaliity between each element (data must have the same length of the stack)
-bool stack_equals_data(Stack s, void* data);
+bool stack_equals(const AnyStack a, const AnyStack b);

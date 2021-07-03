@@ -1,5 +1,5 @@
 /**
- * Generic Binary Heap Library v1.0
+ * Generic Binary Heap Library v1.1
  * 
  * @author: Gabriel-AB
  * @github: https://github.com/Gabriel-AB/
@@ -22,8 +22,8 @@ typedef struct {\
         const size_t dsize;\
     } internal;\
 \
-    size_t max;\
-    size_t used;\
+    size_t alloc;\
+    size_t size;\
     type at[];\
 } *type##Heap
 
@@ -52,11 +52,12 @@ typedef struct heap {
         const size_t dsize;
     } internal;
 
-    size_t max;
-    size_t used;
+    size_t alloc;
+    size_t size;
     char at[];
 } *Heap;
 
+typedef void* AnyHeap;
 
 /**
  * @brief Allocate a binary heap 

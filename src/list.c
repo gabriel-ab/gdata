@@ -1,5 +1,5 @@
 /* 
- * Generic double linked List Library v1.7
+ * Generic double linked List* Library v1.8
  * 
  * @author Gabriel-AB
  * https://github.com/Gabriel-AB
@@ -33,11 +33,11 @@ static struct list_node * _list_find(struct list_node * node, int index) {
 }
 
 /* 
- * List constrained index finder 
+ * List* constrained index finder 
  * if index is negative, searchs in reverse. 
  * return: the node
  */
-static struct list_node * _list_node_at(List list, int index) {
+static struct list_node * _list_node_at(List* list, int index) {
     return _list_find((index < 0) ? list->tail : list->head, index);
 }
 
@@ -48,7 +48,7 @@ void * list_at(AnyList list, int index) {
 
 // ### Constructor
 void* list_create(size_t dsize, size_t initial_size, void * initial_values) {
-    List list = calloc(1,sizeof(*list));
+    List* list = calloc(1,sizeof(*list));
     *(size_t*)&list->internal.dsize = dsize;
     if (initial_values)
         list_pushback(list, initial_size, initial_values);
@@ -59,7 +59,7 @@ void* list_create(size_t dsize, size_t initial_size, void * initial_values) {
 
 // Push value in list's end.
 void list_pushback(AnyList list, size_t num_elements, void *data) {
-    List l = list;
+    List* l = list;
     while (num_elements--) {
         struct list_node *new_node = _list_new_node(l->internal.dsize);
 
@@ -79,7 +79,7 @@ void list_pushback(AnyList list, size_t num_elements, void *data) {
 
 // Push value in list's begin.
 void list_pushfront(AnyList list, size_t num_elements, void * data) {
-    List _list = list;
+    List* _list = list;
     while (num_elements--) {
         struct list_node *new_node = _list_new_node(_list->internal.dsize);
 
@@ -99,7 +99,7 @@ void list_pushfront(AnyList list, size_t num_elements, void * data) {
 
 //Push value in the index especified
 void list_push(AnyList _list, int index, void * item) {
-    List list = _list;
+    List* list = _list;
     struct list_node *old_node = _list_node_at(list, index);
     if (old_node == NULL) return;
 
@@ -132,7 +132,7 @@ void list_push(AnyList _list, int index, void * item) {
 
 // Retrieve the in the index specified
 void *list_pop_node(AnyList list, void* _node) {
-    List L = list;
+    List* L = list;
     struct list_node* node = _node;
 
     if (node == L->tail)
@@ -157,7 +157,7 @@ void* list_pop(AnyList list, int index) {
 
 // Resize a list allocating new memory,
 void list_resize(AnyList list, unsigned int new_size) {
-    List _list = list;
+    List* _list = list;
     if (_list->size < new_size) {
         int count = new_size -_list->size;
         list_pushback(_list, count, NULL);
@@ -168,27 +168,34 @@ void list_resize(AnyList list, unsigned int new_size) {
     }
 }
 
-AnyList list_copy(AnyList dst, AnyList src) {
-    list_clear(dst);
-    struct list_node* node = ((List)src)->head;
+AnyList list_copy(AnyList list) {
+    List *src = list;
+    List *result = list_create(src->internal.dsize, 0, 0);
+    struct list_node* node = src->head;
     while (node) {
-        list_pushback(dst, 1, node->data);
+        list_pushback(result, 1, node->data);
         node = node->next;
     }
-    return dst;
+    return result;
 }
 
 void list_clear(AnyList list) {
-    List _list = list;
-    while (_list->size > 0)
-        list_pop(list, -1);
-    free(_list->internal.pop);
-    _list->internal.pop = NULL;
+    List* _list = list;
+    struct list_node *node = _list->head, *next;
+    while (node) {
+        next = node->next;
+        free(node);
+        node = next;
+    }
+    if (_list->internal.pop)
+        free(_list->internal.pop);
+    _list->internal.pop = _list->head = _list->tail = NULL;
+    _list->size = 0;
 }
 
 // convert to a array
 void list_to_array(AnyList list, void* result) {
-    List _list = list;
+    List* _list = list;
     struct list_node *n = _list->head;
     for (size_t i = 0; i < _list->size; i++) {
         void * array_element = (char*)result + i*_list->internal.dsize;
@@ -203,8 +210,8 @@ void list_delete(AnyList list) {
 }
 
 void* list_slice(AnyList list, unsigned int begin, unsigned int end) {
-    List _list = list;
-    List result = list_create(_list->internal.dsize, 0, 0);
+    List* _list = list;
+    List* result = list_create(_list->internal.dsize, 0, 0);
     struct list_node* node = _list->head;
 
     end -= begin;
@@ -219,7 +226,7 @@ void* list_slice(AnyList list, unsigned int begin, unsigned int end) {
 }
 
 bool list_equals(AnyList a, AnyList b) {
-    List A = a, B = b;
+    List *A = a, *B = b;
     if (A->size != B->size || A->internal.dsize != B->internal.dsize)
         return false;
     for (struct list_node *an = A->head, *bn = B->head;
@@ -228,22 +235,6 @@ bool list_equals(AnyList a, AnyList b) {
     {
         if (memcmp(an->data, bn->data, A->internal.dsize) != 0)
             return false;
-    }
-    return true;
-}
-
-bool list_equals_data(AnyList list, void* data) {
-    List l = list;
-    struct list_node *node = l->head;
-    size_t i = 0;
-    size_t dsize = l->internal.dsize;
-    while (node != NULL) {
-        void *a = node->data;
-        void *b = data + i*dsize;
-        if (memcmp(a,b, dsize) != 0)
-            return false;
-        node = node->next;
-        i++;
     }
     return true;
 }

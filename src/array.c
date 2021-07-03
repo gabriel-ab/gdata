@@ -5,8 +5,8 @@
 AnyArray array_create(size_t dsize, size_t initial_size, void* initial_values) {
     charArray *array = malloc(sizeof(*array) + dsize * initial_size);
     if (array) {
-        array->size = initial_size;
-        array->dsize = dsize;
+        *(size_t*)&array->size = initial_size;
+        *(size_t*)&array->dsize = dsize;
         if (initial_values)
             memcpy(array->at, initial_values, dsize * initial_size);
         else
@@ -18,7 +18,7 @@ AnyArray array_create(size_t dsize, size_t initial_size, void* initial_values) {
 AnyArray array_resize(AnyArray array, const size_t new_size) {
     charArray *arr = array;
     array = realloc(array, sizeof(*arr) + arr->dsize*new_size);
-    arr->size = new_size;
+    *(size_t*)&arr->size = new_size;
     return array;
 }
 
@@ -45,18 +45,6 @@ bool array_equals(AnyArray a, AnyArray b) {
     charArray *A = a, *B = b;
     if (A->size != B->size || A->dsize != B->dsize)
         return false;
-    return array_equals_data(a, B->at);
-}
-
-bool array_equals_data(AnyArray array, void* data) {
-    charArray *arr = array;
-    for (size_t i = 0; i < arr->size; i++) {
-        size_t current_index = i*arr->dsize;
-        void* current_a = arr->at + current_index;
-        void* current_b = data + current_index;
-        
-        if (memcmp(current_a, current_b, arr->dsize) != 0)
-            return false;
-    }
-    return true;
+    size_t dsize = A->dsize;
+    return memcmp(A->at, B->at, dsize*A->size) == 0;
 }

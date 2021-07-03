@@ -1,5 +1,5 @@
 /** 
- * Generic double linked List v1.7
+ * Generic double linked List v1.8
  * 
  * @author Gabriel-AB
  * https://github.com/Gabriel-AB
@@ -19,19 +19,26 @@
  * @brief Define a new type of List
  */
 #define LIST_TYPEDEF(type)\
-typedef struct type ## list {\
-    struct list_node* head;\
-    struct list_node* tail;\
-    size_t size;\
+struct type##_list_node {\
+    struct type##_list_node* next;\
+    struct type##_list_node* back;\
+    type data;\
+};\
+typedef union type ## list {\
     struct {\
-        struct list_node* pop;\
-        const size_t dsize;\
-        type dtype[];\
-    } internal;\
+        size_t size;\
+        struct type##_list_node* head;\
+        struct type##_list_node* tail;\
+        struct {\
+            struct type##_list_node* pop;\
+            const size_t dsize;\
+        } internal;\
+    };\
+    type dtype;\
 } type ## List
 
 // get list's type witch is holded by internal.dtype
-#define LIST_DTYPE(list) __typeof__(*list->internal.dtype)
+#define LIST_DTYPE(list) typeof(list->dtype)
 
 /**
  * @brief Push itens at back of the list.
@@ -95,17 +102,12 @@ typedef struct type ## list {\
 /** 
  * @brief for wrapper for AnyList
  * 
- * @param cursor: variable name to use within the scope 
+ * @param cursor: variable name to use within the scope (access data: cursor->data)
  * 
  * @note use cursor->data to list's data at current iteration
  */
 #define LIST_FOR_EACH(cursor, list)\
-    for (\
-        __typeof__(struct {\
-            void *next, *back;\
-            LIST_DTYPE(list) data;\
-        })\
-        *cursor = (void*)list->head;\
+    for (struct LIST_DTYPE(list)_list_node *cursor = (void*)list->head;\
         cursor != NULL;\
         cursor = cursor->next)
 
@@ -138,15 +140,15 @@ struct list_node {
 };
 
 // Generic List (macros do not work)
-typedef struct List {\
-    struct list_node* head;\
-    struct list_node* tail;\
-    size_t size;\
-    struct {\
-        struct list_node* pop;\
-        const size_t dsize;\
-    } internal;\
-} *List;
+typedef struct list {
+    size_t size;
+    struct list_node* head;
+    struct list_node* tail;
+    struct {
+        struct list_node* pop;
+        const size_t dsize;
+    } internal;
+} List;
 
 // AnyList (intList, floatList, ...) 
 // just to tell which kind of argument is expected
@@ -234,11 +236,8 @@ void* list_pop_node(AnyList list, void* node);
 // Resize a list allocating new memory,
 void list_resize(AnyList list, unsigned int new_size);
 
-/**
- * @brief Copy all content of src list to dst
- * @return: dst list
- */
-AnyList list_copy(AnyList dst, AnyList src);
+/// @brief makes a copy of list
+AnyList list_copy(AnyList list);
 
 /// @brief Create a sub list using the passed interval [begin, end)
 AnyList list_slice(AnyList list, unsigned int begin, unsigned int end);
@@ -254,10 +253,6 @@ void list_delete(AnyList list);
 
 /// @brief check equality of two lists
 bool list_equals(AnyList a, AnyList b);
-
-/// @brief check equality of a list and a array
-bool list_equals_data(AnyList list, void* data);
-
 
 // Defining basic data lists
 LIST_TYPEDEF(int);

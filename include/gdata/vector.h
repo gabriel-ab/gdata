@@ -20,6 +20,7 @@
  */
 #pragma once
 #include <stddef.h>
+#include <stdbool.h>
 
 /**
  * @brief Declare a type of vector and use `typeVector`
@@ -35,15 +36,15 @@
  */
 #define VECTOR_TYPEDEF(type)\
 typedef struct type ## Vector {\
-    type *at;\
     size_t size;\
+    type *at;\
     struct {\
         type *begin;\
         size_t offset;\
         size_t alloc;\
         size_t dsize;\
     } internal;\
-}* type ## Vector
+} type ## Vector
 
 // Declaring basic data vectors
 VECTOR_TYPEDEF(char);
@@ -174,7 +175,7 @@ void* vector_popfront(AnyVector vector);
 void vector_remove(AnyVector vector, size_t index);
 
 // Get a pointer to the given index of a vector.
-void* vector_at(void* vector, size_t index);
+void* vector_at(AnyVector vector, size_t index);
 
 // Destructor
 void vector_delete(AnyVector vector);
@@ -184,3 +185,6 @@ AnyVector vector_copy(AnyVector input);
 
 // Creates a new vector from a slice of another one
 AnyVector vector_slice(AnyVector vector, unsigned int begin, unsigned int end);
+
+/// Test if two vectors are equal
+bool vector_equals(AnyVector a, AnyVector b);

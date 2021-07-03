@@ -27,8 +27,8 @@
  */
 #define ARRAY_TYPEDEF(type)\
 typedef struct {\
-    size_t size;\
-    size_t dsize;\
+    const size_t size;\
+    const size_t dsize;\
     type at[];\
 } type##Array
 
@@ -97,14 +97,6 @@ AnyArray array_join(AnyArray a, AnyArray b);
  * @brief Create a new array from another. Interval: [begin, end)
  */
 AnyArray array_slice(AnyArray array, unsigned int begin, unsigned int end);
-
-/**
- * @brief Check equality between `array` and `data` considering data to be an array with same length and type
- * 
- * @param array AnyArray of this library
- * @param data C array
- */
-bool array_equals_data(AnyArray array, void* data);
 
 /**
  * @brief Check equality between `a` and `b`
