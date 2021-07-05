@@ -1,4 +1,4 @@
-#include "gdata/vector.h"
+#include "vector.h"
 #include <stdlib.h>
 #include <string.h>
 

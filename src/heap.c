@@ -1,4 +1,4 @@
-#include "gdata/heap.h"
+#include "heap.h"
 
 static void heap_upheapify(Heap heap) {
     size_t k = heap->size;
@@ -69,7 +69,7 @@ void* heap_create(size_t size, size_t dsize, comparator cmp,
     return heap;
 }
 
-void heap_insert(void *heap, void *data) {
+void heap_push(void *heap, void *data) {
     Heap _heap = heap;
     _heap->size++;
     memcpy(_heap->at + _heap->internal.dsize*_heap->size, data, _heap->internal.dsize);

@@ -76,7 +76,7 @@ void* heap_create(size_t size, size_t dsize, comparator cmp, enum HeapOrder orde
  * @param heap: Any kind of Heap. ex: intHeap, floatHeap, ...
  * @param data: Reference to value
  */
-void heap_insert(void *heap, void *data);
+void heap_push(void *heap, void *data);
 
 /**
  * @brief Get and remove most relevant item.

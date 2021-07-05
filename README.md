@@ -1,18 +1,49 @@
 # gdata
-A generic C data librarie.
+A C generic type data library.
 
 ### Implemented
 - [x] List
 - [x] Stack 
 - [x] Array
 - [x] Vector
+- [x] Heap
 - [ ] Tree
-- [ ] Heap
 
-_List_: Doubly Linked List with tools to handle it
+**List**: Doubly linked list with tools to handle it
 
-_Stack_: Singly Linked List with stack operations
+**Stack**: Singly linked list with push/pop operations
 
-_Array_: Simple array with lenght implementation
+**Array**: Simple array with lenght implementation
 
-_Vector_: Dinamic size vector, with push/pop operations
+**Vector**: Dinamic size vector, with push/pop operations
+
+**Heap**: Fixed size heap struture, with push/pop operations
+
+## Syntax style
+
+All functions use snake case notation, stating by the name of the type:
+ex: `list_create()`
+
+All function macros use the uppercase version of the equivalent funcion:
+ex: `LIST_CREATE()`
+
+The macros provide a easy systax to use typed values in some functions like: `create`, `append`, `pop`.
+ex:
+```c
+VECTOR_CREATE(int, 1,2,3)
+```
+is equivalent to:
+```c
+vector_create(sizeof(int), 3, (int[]){1,2,3})
+```
+
+## Build
+
+### with cmake
+    $ mkdir build
+    $ cd build
+    $ cmake ../
+    $ make
+
+## Tests
+[Check](https://github.com/libcheck/check) was used to test this library.

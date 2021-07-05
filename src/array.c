@@ -1,4 +1,4 @@
-#include "gdata/array.h"
+#include "array.h"
 #include <string.h>
 
 // Create a new Array with values, if values are passed.
