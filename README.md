@@ -39,11 +39,15 @@ vector_create(sizeof(int), 3, (int[]){1,2,3})
 
 ## Build
 
-### with cmake
+### Cmake
     $ mkdir build
     $ cd build
-    $ cmake ../
+    $ cmake ..
     $ make
 
 ## Tests
-[Check](https://github.com/libcheck/check) was used to test this library.
+To test, build with:
+
+    $ cmake .. -DBUILD_TESTING=ON
+
+[Check](https://github.com/libcheck/check) is necessary to test this library.
