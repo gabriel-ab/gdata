@@ -1,5 +1,5 @@
 /**
- * Vector v1.1
+ * Generic Vector
  * 
  * @author: Gabriel-AB
  * @github: https://github.com/Gabriel-AB/
@@ -7,16 +7,6 @@
  * usage:
  *      call `VECTOR_TYPEDEF(type)` and 
  *      use `typeVector` as your vector
- * 
- * ex:
- *      VECTOR_TYPEDEF(int);
- *      intVector v = VECTOR_CREATE(int, 1,2,3);
- *      intVector v = VECTOR_ALLOCATE(int, 10);
- * 
- * build in types:
- *      Vector       intVector     floatVector 
- *      charVector   shortVector   doubleVector
- *                   longVector 
  */
 #pragma once
 #include <stddef.h>
@@ -35,8 +25,8 @@
  *        To use any of them, define a new type using `typedef`
  */
 #define VECTOR_TYPEDEF(type)\
-typedef struct type ## Vector {\
-    size_t size;\
+typedef struct type ## _vector {\
+    size_t length;\
     type *at;\
     struct {\
         type *begin;\
@@ -48,19 +38,10 @@ typedef struct type ## Vector {\
 
 // Declaring basic data vectors
 VECTOR_TYPEDEF(char);
-
-VECTOR_TYPEDEF(short);
 VECTOR_TYPEDEF(int);
-VECTOR_TYPEDEF(long);
-
 VECTOR_TYPEDEF(float);
-VECTOR_TYPEDEF(double);
-
-typedef void* AnyVector;
-
 
 // ===== MACROS ===== //
-
 
 /**
  * @brief Creates a new vector with values if passed
@@ -70,7 +51,7 @@ typedef void* AnyVector;
  * @param __VA_ARGS__: values to initialize vector
  */
 #define VECTOR_CREATE(type, ...) ({\
-    __typeof__(type) _vec[] = {__VA_ARGS__};\
+    typeof(type) _vec[] = {__VA_ARGS__};\
     vector_create(sizeof(type), sizeof(_vec)/sizeof(*_vec), _vec);\
 })
 
@@ -89,7 +70,7 @@ typedef void* AnyVector;
  * @param __VA_ARGS__: values to push, the type inside list or literal
  */
 #define VECTOR_PUSHBACK(vector, ...) ({\
-    __typeof__(*vector->at) _vec[] = {__VA_ARGS__};\
+    typeof(*vector->at) _vec[] = {__VA_ARGS__};\
     vector_pushback(vector, sizeof(_vec)/sizeof(*_vec), _vec);\
 })
 
@@ -99,7 +80,7 @@ typedef void* AnyVector;
  * @param __VA_ARGS__: values to push, the type inside list or literal
  */
 #define VECTOR_PUSHFRONT(vector, ...) ({\
-    __typeof__(*vector->at) _vec[] = {__VA_ARGS__};\
+    typeof(*vector->at) _vec[] = {__VA_ARGS__};\
     vector_pushfront(vector, sizeof(_vec)/sizeof(*_vec), _vec);\
 })
 
@@ -107,13 +88,13 @@ typedef void* AnyVector;
  * @brief Get the last element and remove it from vector
  * @return value
  */
-#define VECTOR_POPBACK(vector) (*(__typeof__(vector->at))vector_popback(vector))
+#define VECTOR_POPBACK(vector) (*(typeof(vector->at))vector_popback(vector))
 
 /**
  * @brief Get the first element and remove it from vector
  * @return value
  */
-#define VECTOR_POPFRONT(vector) (*(__typeof__(vector->at))vector_popfront(vector))
+#define VECTOR_POPFRONT(vector) (*(typeof(vector->at))vector_popfront(vector))
 
 
 // ===== FUNCTIONS ===== //
@@ -125,7 +106,7 @@ typedef void* AnyVector;
  * @param initial_size: initial size of the list. (0 is valid)
  * @param initial_values: pointer to data that will be pushed first. (0 is valid)
  */
-AnyVector vector_create(size_t dsize, size_t initial_size, void* initial_values);
+void* vector_create(size_t dsize, size_t initial_size, void* initial_values);
 
 /**
  * @brief Push data to vector's end.
@@ -136,7 +117,7 @@ AnyVector vector_create(size_t dsize, size_t initial_size, void* initial_values)
  * 
  * @see VECTOR_PUSHBACK() macro
  */
-void vector_pushback(AnyVector vector, size_t num_elements, void* data);
+void vector_pushback(void* vector, size_t num_elements, void* data);
 
 /**
  * @brief Push data to vector's begin.
@@ -147,7 +128,7 @@ void vector_pushback(AnyVector vector, size_t num_elements, void* data);
  * 
  * @see VECTOR_PUSHFRONT()
  */
-void vector_pushfront(AnyVector vector, size_t num_elements, void* data);
+void vector_pushfront(void* vector, size_t num_elements, void* data);
 
 /**
  * @brief Pop vector's last element
@@ -158,7 +139,7 @@ void vector_pushfront(AnyVector vector, size_t num_elements, void* data);
  * 
  * @see VECTOR_POPBACK(), it returns value instead of reference
  */
-void* vector_popback(AnyVector vector);
+void* vector_popback(void* vector);
 
 /**
  * @brief Pop vector's first element
@@ -169,22 +150,22 @@ void* vector_popback(AnyVector vector);
  * 
  * @see VECTOR_POPFRONT(), it returns value instead of reference
  */
-void* vector_popfront(AnyVector vector);
+void* vector_popfront(void* vector);
 
 // Remove element at given index
-void vector_remove(AnyVector vector, size_t index);
+void vector_remove(void* vector, size_t index);
 
 // Get a pointer to the given index of a vector.
-void* vector_at(AnyVector vector, size_t index);
+void* vector_at(const void* vector, size_t index);
 
 // Destructor
-void vector_delete(AnyVector vector);
+void vector_delete(void* vector);
 
 // Obs: the return is a new vector, then you may free it later
-AnyVector vector_copy(AnyVector input);
+void* vector_copy(void* input);
 
 // Creates a new vector from a slice of another one
-AnyVector vector_slice(AnyVector vector, unsigned int begin, unsigned int end);
+void* vector_slice(const void* vector, unsigned int begin, unsigned int end);
 
 /// Test if two vectors are equal
-bool vector_equals(AnyVector a, AnyVector b);
+bool vector_equals(const void* a, const void* b);

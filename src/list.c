@@ -1,11 +1,3 @@
-/* 
- * Generic double linked List* Library v1.8
- * 
- * @author Gabriel-AB
- * https://github.com/Gabriel-AB
- * 
- */
-
 #include "list.h"
 #include <stdlib.h>
 #include <string.h>
@@ -42,7 +34,7 @@ static struct list_node * _list_node_at(List* list, int index) {
 }
 
 
-void * list_at(AnyList list, int index) {
+void * list_at(void* list, int index) {
     return _list_node_at(list, index)->data;
 }
 
@@ -58,60 +50,60 @@ void* list_create(size_t dsize, size_t initial_size, void * initial_values) {
 }
 
 // Push value in list's end.
-void list_pushback(AnyList list, size_t num_elements, void *data) {
-    List* l = list;
+void list_pushback(void* list, size_t num_elements, void *data) {
+    List* L = list;
     while (num_elements--) {
-        struct list_node *new_node = _list_new_node(l->internal.dsize);
+        struct list_node *new_node = _list_new_node(L->internal.dsize);
 
         if (data) {
-            memcpy(new_node->data, data, l->internal.dsize);
-            data = (char*)data + l->internal.dsize;
+            memcpy(new_node->data, data, L->internal.dsize);
+            data = (char*)data + L->internal.dsize;
         }
 
-        if (l->size++ > 0) {
-            l->tail->next = new_node;
-            new_node->back = l->tail;
-            l->tail = new_node;
+        if (L->length++ > 0) {
+            L->tail->next = new_node;
+            new_node->back = L->tail;
+            L->tail = new_node;
         }
-        else l->head = l->tail = new_node;
+        else L->head = L->tail = new_node;
     }
 }
 
 // Push value in list's begin.
-void list_pushfront(AnyList list, size_t num_elements, void * data) {
-    List* _list = list;
+void list_pushfront(void* list, size_t num_elements, void * data) {
+    List* L = list;
     while (num_elements--) {
-        struct list_node *new_node = _list_new_node(_list->internal.dsize);
+        struct list_node *new_node = _list_new_node(L->internal.dsize);
 
         if (data) {
-            void* curr = (char*)data + num_elements*_list->internal.dsize;
-            memcpy(new_node->data, curr, _list->internal.dsize);
+            void* curr = (char*)data + num_elements*L->internal.dsize;
+            memcpy(new_node->data, curr, L->internal.dsize);
         }
 
-        if (_list->size++ > 0) {
-            _list->head->back = new_node;
-            new_node->next = _list->head;
-            _list->head = new_node;
+        if (L->length++ > 0) {
+            L->head->back = new_node;
+            new_node->next = L->head;
+            L->head = new_node;
         }
-        else _list->head = _list->tail = new_node;
+        else L->head = L->tail = new_node;
     }
 }
 
 //Push value in the index especified
-void list_push(AnyList _list, int index, void * item) {
-    List* list = _list;
+void list_push(void* list, int index, void * item) {
+    List* L = list;
     struct list_node *old_node = _list_node_at(list, index);
     if (old_node == NULL) return;
 
-    struct list_node *new_node = _list_new_node(list->internal.dsize);
+    struct list_node *new_node = _list_new_node(L->internal.dsize);
     if (new_node == NULL) return;
 
     // Goes before old item
     if (index >= 0) {
         new_node->next = old_node;
         new_node->back = old_node->back;
-        if (old_node == list->head)
-            list->head = new_node;
+        if (old_node == L->head)
+            L->head = new_node;
         else
             old_node->back->next = new_node;
         old_node->back = new_node;
@@ -120,18 +112,18 @@ void list_push(AnyList _list, int index, void * item) {
     } else {
         new_node->back = old_node;
         new_node->next = old_node->next;
-        if (old_node == list->tail)
-            list->tail = new_node;
+        if (old_node == L->tail)
+            L->tail = new_node;
         else
             old_node->next->back = new_node;
         old_node->next = new_node;
     }
-    if (item) memcpy(new_node->data, item, list->internal.dsize);
-    list->size++;
+    if (item) memcpy(new_node->data, item, L->internal.dsize);
+    L->length++;
 }
 
 // Retrieve the in the index specified
-void *list_pop_node(AnyList list, void* _node) {
+void *list_pop_node(void* list, void* _node) {
     List* L = list;
     struct list_node* node = _node;
 
@@ -139,7 +131,7 @@ void *list_pop_node(AnyList list, void* _node) {
         L->tail = node->back;
     if (node == L->head)
         L->head = node->next;
-    L->size--;
+    L->length--;
 
     if (L->internal.pop)
         free(L->internal.pop);
@@ -151,27 +143,27 @@ void *list_pop_node(AnyList list, void* _node) {
     return node->data;
 }
 
-void* list_pop(AnyList list, int index) {
+void* list_pop(void* list, int index) {
     return list_pop_node(list, _list_node_at(list, index));
 }
 
 // Resize a list allocating new memory,
-void list_resize(AnyList list, unsigned int new_size) {
-    List* _list = list;
-    if (_list->size < new_size) {
-        int count = new_size -_list->size;
-        list_pushback(_list, count, NULL);
+void list_resize(void* list, unsigned int new_size) {
+    List* L = list;
+    if (L->length < new_size) {
+        int count = new_size -L->length;
+        list_pushback(L, count, NULL);
     } else {
-        int count = _list->size -new_size;
+        int count = L->length -new_size;
         for (int i = 0; i < count; i++)
-            list_pop(_list, -1);
+            list_pop(L, -1);
     }
 }
 
-AnyList list_copy(AnyList list) {
-    List *src = list;
-    List *result = list_create(src->internal.dsize, 0, 0);
-    struct list_node* node = src->head;
+void* list_copy(void* list) {
+    List *L = list;
+    List *result = list_create(L->internal.dsize, 0, 0);
+    struct list_node* node = L->head;
     while (node) {
         list_pushback(result, 1, node->data);
         node = node->next;
@@ -179,40 +171,40 @@ AnyList list_copy(AnyList list) {
     return result;
 }
 
-void list_clear(AnyList list) {
-    List* _list = list;
-    struct list_node *node = _list->head, *next;
+void list_clear(void* list) {
+    List* L = list;
+    struct list_node *node = L->head, *next;
     while (node) {
         next = node->next;
         free(node);
         node = next;
     }
-    if (_list->internal.pop)
-        free(_list->internal.pop);
-    _list->internal.pop = _list->head = _list->tail = NULL;
-    _list->size = 0;
+    if (L->internal.pop)
+        free(L->internal.pop);
+    L->internal.pop = L->head = L->tail = NULL;
+    L->length = 0;
 }
 
 // convert to a array
-void list_to_array(AnyList list, void* result) {
-    List* _list = list;
-    struct list_node *n = _list->head;
-    for (size_t i = 0; i < _list->size; i++) {
-        void * array_element = (char*)result + i*_list->internal.dsize;
-        memcpy(array_element, n->data, _list->internal.dsize);
+void list_to_array(void* list, void* result) {
+    List* L = list;
+    struct list_node *n = L->head;
+    for (size_t i = 0; i < L->length; i++) {
+        void * array_element = (char*)result + i*L->internal.dsize;
+        memcpy(array_element, n->data, L->internal.dsize);
         n = n->next;
     }
 }
 
-void list_delete(AnyList list) {
+void list_delete(void* list) {
     list_clear(list);
     free(list);
 }
 
-void* list_slice(AnyList list, unsigned int begin, unsigned int end) {
-    List* _list = list;
-    List* result = list_create(_list->internal.dsize, 0, 0);
-    struct list_node* node = _list->head;
+void* list_slice(void* list, unsigned int begin, unsigned int end) {
+    List* L = list;
+    List* result = list_create(L->internal.dsize, 0, 0);
+    struct list_node* node = L->head;
 
     end -= begin;
     while (begin--)
@@ -225,9 +217,9 @@ void* list_slice(AnyList list, unsigned int begin, unsigned int end) {
     return result;
 }
 
-bool list_equals(AnyList a, AnyList b) {
+bool list_equals(void* a, void* b) {
     List *A = a, *B = b;
-    if (A->size != B->size || A->internal.dsize != B->internal.dsize)
+    if (A->length != B->length || A->internal.dsize != B->internal.dsize)
         return false;
     for (struct list_node *an = A->head, *bn = B->head;
          an != NULL;

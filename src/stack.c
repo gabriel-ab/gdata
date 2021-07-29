@@ -2,11 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-AnyStack stack_create(size_t dsize, size_t initial_size, void *initial_values) {
-    Stack *stack = malloc(sizeof(struct stack));
-    stack->size = 0;
-    stack->head = NULL;
-    stack->internal.pop = NULL;
+void* stack_create(size_t dsize, size_t initial_size, void *initial_values) {
+    Stack res = {.internal.dsize=dsize};
+    Stack *stack = calloc(1, sizeof(struct stack));
     *(size_t*)&stack->internal.dsize = dsize;
     if (initial_values)
         for (size_t i = 0; i < initial_size; i++)
@@ -14,69 +12,69 @@ AnyStack stack_create(size_t dsize, size_t initial_size, void *initial_values) {
     return stack;
 }
 
-void stack_delete(AnyStack stack) {
+void stack_delete(void* stack) {
     stack_clear(stack);
     free(stack);
 }
 
 // Push a new item to the head
-void stack_push(AnyStack stack, void *data) {
+void stack_push(void* stack, void *data) {
     Stack *s = stack;
     struct stack_node* node = malloc(sizeof(struct stack_node*) + s->internal.dsize);
     if (node) {
         memcpy(node->data, data, s->internal.dsize);
         node->next = s->head;
         s->head = node;
-        s->size++;
+        s->length++;
     }
 }
 
 // Pop the head
-void* stack_pop(AnyStack stack) {
+void* stack_pop(void* stack) {
     Stack *s = stack;
     struct stack_node* node = s->head;
     s->head = node->next;
-    s->size--;
+    s->length--;
     if (s->internal.pop)
         free(s->internal.pop);
     s->internal.pop = node;
     return node->data;
 }
 
-void* stack_at(const AnyStack stack, int index) {
+void* stack_at(const void* stack, int index) {
     Stack *s = stack;
     struct stack_node *node = s->head;
-    index = index - s->size + 1;
+    index = index - s->length + 1;
     while(index++ && node)
         node = node->next;
     return node->data;
 }
 
-void* stack_value(const AnyStack stack) {
+void* stack_value(const void* stack) {
     return stack_at(stack, 0);
 }
 
-void stack_to_array(const AnyStack stack, void* array) {
+void stack_to_array(const void* stack, void* array) {
     Stack *s = stack;
     struct stack_node *node = s->head;
     size_t dsize = s->internal.dsize;
-    size_t i = s->size;
+    size_t i = s->length;
     while (node) {
         memcpy(array + dsize * --i, node->data, dsize);
         node = node->next;
     }
 }
 
-AnyStack stack_copy(const AnyStack stack) {
+void* stack_copy(const void* stack) {
     Stack *s = stack;
-    char data[s->size*s->internal.dsize];
+    char data[s->length*s->internal.dsize];
     stack_to_array(s, data);
-    return stack_create(s->internal.dsize, s->size, data);
+    return stack_create(s->internal.dsize, s->length, data);
 }
 
-void stack_clear(AnyStack stack) {
+void stack_clear(void* stack) {
     Stack *s = stack;
-    while (s->size)
+    while (s->length)
         stack_pop(s);
     free(s->internal.pop);
     s->internal.pop = NULL;
@@ -93,24 +91,24 @@ static struct stack_node* _stack_reverse(struct stack_node* node, struct stack_n
     return res;
 }
 
-void stack_reverse(AnyStack stack) {
+void stack_reverse(void* stack) {
     Stack *s = stack;
-    struct stack_node *nodes[s->size];
+    struct stack_node *nodes[s->length];
     nodes[0] = s->head;
 
-    for (int i = 1; i < s->size; i++) {
+    for (int i = 1; i < s->length; i++) {
         nodes[i] = nodes[i -1]->next;
     }
-    for (int i = s->size -1; i > 0; i--) {
+    for (int i = s->length -1; i > 0; i--) {
         nodes[i]->next = nodes[i -1];
     }
     nodes[0]->next = NULL;
-    s->head = nodes[s->size -1];
+    s->head = nodes[s->length -1];
 }
 
-bool stack_equals(const AnyStack a, const AnyStack b) {
-    Stack *A = a, *B = b;
-    if (A->size != B->size || A->internal.dsize != B->internal.dsize)
+bool stack_equals(const void* a, const void* b) {
+    const Stack *A = a, *B = b;
+    if (A->length != B->length || A->internal.dsize != B->internal.dsize)
         return false;
     
     for (struct stack_node *an = A->head, *bn = B->head; an && bn; 

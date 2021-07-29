@@ -6,11 +6,11 @@
 START_TEST(test_list_create) {
     size_t dsize = sizeof(short);
     List *test = list_create(dsize, 0, 0);
-    List expected = {0, NULL, NULL, {NULL, dsize}};
+    List expected = {.internal.dsize=dsize};
 
     ck_assert_ptr_eq(test->head, expected.head);
     ck_assert_ptr_eq(test->tail, expected.tail);
-    ck_assert_int_eq(test->size, expected.size);
+    ck_assert_int_eq(test->length, expected.length);
 
     ck_assert_ptr_eq(test->internal.pop, expected.internal.pop);
     ck_assert_int_eq(test->internal.dsize, expected.internal.dsize);
@@ -19,9 +19,9 @@ START_TEST(test_list_create) {
 
 START_TEST(test_list_pushback) {
     intList *list = LIST_CREATE(int);
-    ck_assert_int_eq(list->size, 0);
+    ck_assert_int_eq(list->length, 0);
     list_pushback(list, 2, (int[]){9,3});
-    ck_assert_int_eq(list->size, 2);
+    ck_assert_int_eq(list->length, 2);
 
     int first = list->head->data;
     int last = list->tail->data;
@@ -35,13 +35,13 @@ START_TEST(test_list_pushback) {
 
 START_TEST(test_list_clear) {
     intList *list = LIST_CREATE(int, 1,2,3,4,5);
-    ck_assert_int_eq(list->size, 5);
+    ck_assert_int_eq(list->length, 5);
     ck_assert_ptr_ne(list->head, NULL);
     ck_assert_ptr_ne(list->tail, NULL);
     list_clear(list);
     ck_assert_ptr_eq(list->head, NULL);
     ck_assert_ptr_eq(list->tail, NULL);
-    ck_assert_int_eq(list->size, 0);
+    ck_assert_int_eq(list->length, 0);
     list_delete(list);
 } END_TEST
 
@@ -69,9 +69,9 @@ START_TEST(test_list_copy) {
 
 START_TEST(test_list_resize) {
     intList *a = LIST_CREATE(int, 1,2,3);
-    ck_assert_int_eq(a->size, 3);
+    ck_assert_int_eq(a->length, 3);
     list_resize(a, 5);
-    ck_assert_int_eq(a->size, 5);
+    ck_assert_int_eq(a->length, 5);
     ck_assert_int_eq(LIST_AT(a, -1), 0);
     list_delete(a);
 } END_TEST
@@ -138,7 +138,7 @@ START_TEST(test_list_slice) {
     intList *a = LIST_CREATE(int, 1,2,3,4);
     intList *b = list_slice(a, 2, 4);
 
-    ck_assert_int_eq(b->size, 2);
+    ck_assert_int_eq(b->length, 2);
     ck_assert(list_equals(b, result_true) == true);
     ck_assert(list_equals(b, result_false) == false);
 
