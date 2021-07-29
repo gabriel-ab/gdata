@@ -1,7 +1,7 @@
 #include "heap.h"
 
-static void heap_upheapify(Heap heap) {
-    size_t k = heap->size;
+static void heap_upheapify(Heap* heap) {
+    size_t k = heap->length;
     size_t s = heap->internal.dsize;
 
     // MaxHeap: father > kid
@@ -23,10 +23,10 @@ static void heap_upheapify(Heap heap) {
     }
 }
 
-static void heap_downheapify(Heap heap) {
+static void heap_downheapify(Heap* heap) {
     size_t s = heap->internal.dsize;
     size_t p = 1, f = 2;
-    size_t m = heap->size;
+    size_t m = heap->length;
     
     int cmp;
 
@@ -58,11 +58,10 @@ static void heap_downheapify(Heap heap) {
 
 void* heap_create(size_t size, size_t dsize, comparator cmp, 
                   enum HeapOrder order) {
-    Heap heap = malloc(sizeof(struct heap) + dsize*(size+1));
+    Heap* heap = malloc(sizeof(struct heap) + dsize*(size+1));
     memset(heap->at, 0, dsize*size);
     heap->alloc = size;
-    heap->size = 0;
-    
+    heap->length = 0;
     *(comparator*)&heap->internal.cmp = cmp;
     *(size_t*)&heap->internal.dsize = dsize;
     *(enum HeapOrder*)&heap->order = order;
@@ -70,24 +69,24 @@ void* heap_create(size_t size, size_t dsize, comparator cmp,
 }
 
 void heap_push(void *heap, void *data) {
-    Heap _heap = heap;
-    _heap->size++;
-    memcpy(_heap->at + _heap->internal.dsize*_heap->size, data, _heap->internal.dsize);
-    heap_upheapify(_heap);
+    Heap* H = heap;
+    H->length++;
+    memcpy(H->at + H->internal.dsize*H->length, data, H->internal.dsize);
+    heap_upheapify(H);
 }
 
 // get the most relevant value
 void* heap_pop(void* heap) {
-    Heap _heap = heap;
-    void* array = _heap->at;
-    size_t dsize = _heap->internal.dsize;
+    Heap* H = heap;
+    void* array = H->at;
+    size_t dsize = H->internal.dsize;
 
     memcpy(array, array + dsize, dsize);                        // [0] = [1]
-    memcpy(array + dsize, array + dsize*_heap->size, dsize);    // [1] = [used]
-    memset(array + dsize*_heap->size, 0, dsize);                // [used] = 0 
+    memcpy(array + dsize, array + dsize*H->length, dsize);    // [1] = [used]
+    memset(array + dsize*H->length, 0, dsize);                // [used] = 0 
     
-    _heap->size--;
-    heap_downheapify(_heap);
+    H->length--;
+    heap_downheapify(H);
     return array;
 }
 

@@ -1,5 +1,5 @@
 /**
- * Generic Binary Heap Library v1.1
+ * Generic Binary Heap
  * 
  * @author: Gabriel-AB
  * @github: https://github.com/Gabriel-AB/
@@ -15,15 +15,14 @@
 #include <string.h>
 
 #define HEAP_TYPEDEF(type)\
-typedef struct {\
+typedef struct type##_heap {\
+    size_t length;\
     const enum HeapOrder order;\
     struct {\
+        size_t alloc;\
         const comparator cmp;\
         const size_t dsize;\
     } internal;\
-\
-    size_t alloc;\
-    size_t size;\
     type at[];\
 } *type##Heap
 
@@ -46,18 +45,15 @@ typedef int(*comparator)(void* a,void* b);
 
 // Generic Heap
 typedef struct heap {
-    const enum HeapOrder order;
-    struct {
-        const comparator cmp;
-        const size_t dsize;
-    } internal;
-
+    size_t length;
     size_t alloc;
-    size_t size;
+    const enum HeapOrder order;
+    const struct {
+        comparator cmp;
+        size_t dsize;
+    } internal;
     char at[];
-} *Heap;
-
-typedef void* AnyHeap;
+} Heap;
 
 /**
  * @brief Allocate a binary heap 

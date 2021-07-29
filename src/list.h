@@ -1,5 +1,5 @@
 /** 
- * Generic double linked List v1.8
+ * Generic List
  * 
  * @author Gabriel-AB
  * https://github.com/Gabriel-AB
@@ -24,9 +24,9 @@ struct type##_list_node {\
     struct type##_list_node* back;\
     type data;\
 };\
-typedef union type ## list {\
+typedef union type ## _list {\
     struct {\
-        size_t size;\
+        size_t length;\
         struct type##_list_node* head;\
         struct type##_list_node* tail;\
         struct {\
@@ -38,7 +38,7 @@ typedef union type ## list {\
 } type ## List
 
 // get list's type witch is holded by internal.dtype
-#define LIST_DTYPE(list) typeof(list->dtype)
+#define LIST_DTYPE(list) typeof((list)->dtype)
 
 /**
  * @brief Push itens at back of the list.
@@ -100,7 +100,7 @@ typedef union type ## list {\
 #define LIST_AT(list, index) (*(LIST_DTYPE(list)*)list_at(list, index))
 
 /** 
- * @brief for wrapper for AnyList
+ * @brief for wrapper for void*
  * 
  * @param cursor: variable name to use within the scope (access data: cursor->data)
  * 
@@ -125,7 +125,7 @@ typedef union type ## list {\
  * @param __VA_ARGS__: values to initialize list
  */
 #define LIST_CREATE(type, ...) ({\
-    __typeof__(type) _args[] = {__VA_ARGS__};\
+    typeof(type) _args[] = {__VA_ARGS__};\
     (type##List*)list_create(sizeof(type), sizeof(_args)/sizeof(*_args), _args);\
 })
 
@@ -141,7 +141,7 @@ struct list_node {
 
 // Generic List (macros do not work)
 typedef struct list {
-    size_t size;
+    size_t length;
     struct list_node* head;
     struct list_node* tail;
     struct {
@@ -149,10 +149,6 @@ typedef struct list {
         const size_t dsize;
     } internal;
 } List;
-
-// AnyList (intList, floatList, ...) 
-// just to tell which kind of argument is expected
-typedef void* AnyList;
 
 // ===== FUNCTIONS ===== //
 
@@ -175,7 +171,7 @@ void* list_create(size_t dsize, size_t initial_size, void *initial_values);
  * 
  * @note see LIST_PUSHBACK(), it may be simpler to use
  */
-void list_pushback(AnyList list, size_t num_elements, void *data);
+void list_pushback(void* list, size_t num_elements, void *data);
 
 /**
  * @brief Push `num_elements` in `data` to list's begin.
@@ -186,7 +182,7 @@ void list_pushback(AnyList list, size_t num_elements, void *data);
  * 
  * @note see LIST_PUSHFRONT(), it may be simpler to use
  */
-void list_pushfront(AnyList list, size_t num_elements, void *data);
+void list_pushfront(void* list, size_t num_elements, void *data);
 
 /** 
  * @brief Push item in the index especified.
@@ -195,7 +191,7 @@ void list_pushfront(AnyList list, size_t num_elements, void *data);
  * @param index: position in list. if negative, search in reverse
  * @param item: reference to data, values will be copied
  */
-void list_push(AnyList _list, int index, void * item);
+void list_push(void* _list, int index, void * item);
 
 /**
  * @brief Pop the element at index
@@ -207,7 +203,7 @@ void list_push(AnyList _list, int index, void * item);
  * 
  * @note LIST_POP() return value instead of reference
  */
-void* list_pop(AnyList list, int index);
+void* list_pop(void* list, int index);
 
 /**
  * @brief Find a given index of list and return the data pointer
@@ -219,7 +215,7 @@ void* list_pop(AnyList list, int index);
  * 
  * @note LIST_AT() return value instead of reference
  */
-void* list_at(AnyList list, int index);
+void* list_at(void* list, int index);
 
 /**
  * @brief Receive some node from list and remove it properly
@@ -231,28 +227,28 @@ void* list_at(AnyList list, int index);
  * 
  * @note: LIST_POP_NODE() return value instead of reference
  */
-void* list_pop_node(AnyList list, void* node);
+void* list_pop_node(void* list, void* node);
 
 // Resize a list allocating new memory,
-void list_resize(AnyList list, unsigned int new_size);
+void list_resize(void* list, unsigned int new_size);
 
 /// @brief makes a copy of list
-AnyList list_copy(AnyList list);
+void* list_copy(void* list);
 
 /// @brief Create a sub list using the passed interval [begin, end)
-AnyList list_slice(AnyList list, unsigned int begin, unsigned int end);
+void* list_slice(void* list, unsigned int begin, unsigned int end);
 
 /// @brief Deletes all nodes and clear the list
-void list_clear(AnyList list);
+void list_clear(void* list);
 
 /// @brief Copy values to a array. (be sure to have suficient space in the array)
-void list_to_array(AnyList list, void* result);
+void list_to_array(void* list, void* result);
 
 /// @brief free allocated memory
-void list_delete(AnyList list);
+void list_delete(void* list);
 
 /// @brief check equality of two lists
-bool list_equals(AnyList a, AnyList b);
+bool list_equals(void* a, void* b);
 
 // Defining basic data lists
 LIST_TYPEDEF(int);

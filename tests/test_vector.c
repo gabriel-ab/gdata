@@ -5,7 +5,7 @@
 
 START_TEST(test_vector_create) {
     intVector *a = vector_create(sizeof(int), 4, (int[]){TEST_VALUE});
-    ck_assert_int_eq(a->size, 4);
+    ck_assert_int_eq(a->length, 4);
     ck_assert_int_eq(a->internal.dsize, sizeof(int));
     ck_assert_int_eq(a->at[0], 1);
     ck_assert_int_eq(a->at[1], 2);
@@ -16,10 +16,10 @@ START_TEST(test_vector_create) {
 
 START_TEST(test_vector_pushback) {
     intVector *vector = vector_create(4, 0, 0);
-    ck_assert_int_eq(vector->size, 0);
+    ck_assert_int_eq(vector->length, 0);
     vector_pushback(vector, 2, (int[]){9,3});
 
-    ck_assert_int_eq(vector->size, 2);
+    ck_assert_int_eq(vector->length, 2);
     ck_assert_int_eq(vector->at[0], 9);
     ck_assert_int_eq(vector->at[1], 3);
 
@@ -47,7 +47,7 @@ START_TEST(test_vector_slice) {
     intVector *a = VECTOR_CREATE(int, TEST_VALUE);
     intVector *b = vector_slice(a, 2, 4);
 
-    ck_assert_int_eq(b->size, 2);
+    ck_assert_int_eq(b->length, 2);
     ck_assert(vector_equals(b, result_true) == true);
     ck_assert(vector_equals(b, result_false) == false);
 

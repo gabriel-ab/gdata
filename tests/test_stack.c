@@ -7,7 +7,7 @@
 START_TEST(test_stack_create) {
     Stack *stack = stack_create(sizeof(int), 4, (int[])TEST_VALUE);
     
-    ck_assert_int_eq(stack->size, 4);
+    ck_assert_int_eq(stack->length, 4);
     ck_assert_int_eq(stack->internal.dsize, sizeof(int));
     int a = *(int*)stack->head->data;
     int b = *(int*)stack->head->next->data;
@@ -24,7 +24,7 @@ START_TEST(test_stack_create) {
 START_TEST(test_stack_clear) {
     Stack *a = stack_create(sizeof(int), 4, (int[])TEST_VALUE);
     stack_clear(a);
-    ck_assert_int_eq(a->size, 0);
+    ck_assert_int_eq(a->length, 0);
     ck_assert_int_eq(a->internal.dsize, sizeof(int));
     ck_assert_ptr_eq(a->head, NULL);
     stack_delete(a);

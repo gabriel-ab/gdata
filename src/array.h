@@ -1,5 +1,5 @@
 /* 
- * Heap Allocated Array v1.1
+ * Array with length
  * 
  * @author: Gabriel-AB
  * https://github.com/Gabriel-AB/
@@ -26,28 +26,18 @@
  * The type `typeArray` is will be avaliable to you
  */
 #define ARRAY_TYPEDEF(type)\
-typedef struct {\
-    const size_t size;\
+typedef struct type ## _array {\
+    const size_t length;\
     const size_t dsize;\
     type at[];\
-} type##Array
+} *type##Array
 
 // Declaring basic data arrays
 ARRAY_TYPEDEF(char);
-
-ARRAY_TYPEDEF(short);
 ARRAY_TYPEDEF(int);
-ARRAY_TYPEDEF(long);
-
 ARRAY_TYPEDEF(float);
-ARRAY_TYPEDEF(double);
-
-// Pointer to any array
-typedef void* AnyArray;
-
 
 // ===== MACROS ===== //
-
 
 /**
  * @brief Create a new Array with zeros.
@@ -82,23 +72,23 @@ typedef void* AnyArray;
  * @param size: initial size of the list. (non zero value)
  * @param initial_values: array of data to be pushed first. (NULL set all elements to 0)
  */
-AnyArray array_create(size_t dsize, size_t size, void *initial_values);
+void* array_create(size_t dsize, size_t size, void *initial_values);
 
 /** 
  * @brief Reallocates an existing array
  */
-AnyArray array_resize(AnyArray array, const size_t new_size);
+void* array_resize(void* array, const size_t new_size);
 
 /// @brief Create a new array combining `a` and `b`
-AnyArray array_join(AnyArray a, AnyArray b);
+void* array_join(void* a, void* b);
 
 
 /**
  * @brief Create a new array from another. Interval: [begin, end)
  */
-AnyArray array_slice(AnyArray array, unsigned int begin, unsigned int end);
+void* array_slice(void* array, unsigned int begin, unsigned int end);
 
 /**
  * @brief Check equality between `a` and `b`
  */
-bool array_equals(AnyArray a, AnyArray b);
+bool array_equals(void* a, void* b);
