@@ -42,7 +42,7 @@ void* stack_pop(void* stack) {
 }
 
 void* stack_at(const void* stack, int index) {
-    Stack *s = stack;
+    const Stack *s = stack;
     struct stack_node *node = s->head;
     index = index - s->length + 1;
     while(index++ && node)
@@ -55,7 +55,7 @@ void* stack_value(const void* stack) {
 }
 
 void stack_to_array(const void* stack, void* array) {
-    Stack *s = stack;
+    const Stack *s = stack;
     struct stack_node *node = s->head;
     size_t dsize = s->internal.dsize;
     size_t i = s->length;
@@ -66,7 +66,7 @@ void stack_to_array(const void* stack, void* array) {
 }
 
 void* stack_copy(const void* stack) {
-    Stack *s = stack;
+    const Stack *s = stack;
     char data[s->length*s->internal.dsize];
     stack_to_array(s, data);
     return stack_create(s->internal.dsize, s->length, data);

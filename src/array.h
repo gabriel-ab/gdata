@@ -60,7 +60,7 @@ ARRAY_TYPEDEF(float);
  */
 #define ARRAY_CREATE(type, ...) ({\
     type _arr[] = __VA_ARGS__;\
-    (type##Array*)array_create(sizeof(type), sizeof(_arr)/sizeof(type), _arr);\
+    (type##Array)array_create(sizeof(type), sizeof(_arr)/sizeof(type), _arr);\
 })
 
 // ===== FUNCTIONS ===== //
