@@ -1,89 +1,94 @@
-#include <check.h>
+#include <stdio.h>
+#include <assert.h>
 #include "array.h"
 
 #define TEST_VALUE {1,2,3,4}
 
-START_TEST(test_array_create) {
+void test_array_create() {
     intArray a = array_create(sizeof(int), 4, (int[])TEST_VALUE);
-    ck_assert_int_eq(a->length, 4);
-    ck_assert_int_eq(a->dsize, sizeof(int));
-    ck_assert_int_eq(a->at[0], 1);
-    ck_assert_int_eq(a->at[1], 2);
-    ck_assert_int_eq(a->at[2], 3);
-    ck_assert_int_eq(a->at[3], 4);
+    assert(a->length == 4);
+    assert(a->dsize == sizeof(int));
+    assert(a->at[0] == 1);
+    assert(a->at[1] == 2);
+    assert(a->at[2] == 3);
+    assert(a->at[3] == 4);
     free(a);
-} END_TEST
+}
 
-START_TEST(test_array_resize) {
+void test_array_resize() {
     intArray a = array_create(sizeof(int), 4, (int[])TEST_VALUE);
     array_resize(a, 6);
-    ck_assert_int_eq(a->length, 6);
-    ck_assert_int_eq(a->dsize, sizeof(int));
-    ck_assert_int_eq(a->at[0], 1);
-    ck_assert_int_eq(a->at[1], 2);
-    ck_assert_int_eq(a->at[5], 0);
+    assert(a->length == 6);
+    assert(a->dsize == sizeof(int));
+    assert(a->at[0] == 1);
+    assert(a->at[1] == 2);
+    assert(a->at[5] == 0);
     free(a);
-} END_TEST
+}
 
-START_TEST(test_array_join) {
+void test_array_join() {
     intArray join = ARRAY_CREATE(int, {1,2,3,4,5,6});
     intArray a = ARRAY_CREATE(int, {1,2,3});
     intArray b = ARRAY_CREATE(int, {4,5,6});
     intArray c = array_join(a,b);
 
-    ck_assert(array_equals(c, join) == true);
+    assert(array_equals(c, join) == true);
     join->at[4] = 0;
-    ck_assert(array_equals(c, join) == false);
+    assert(array_equals(c, join) == false);
 
     free(a); free(b); free(c);
     free(join);
-} END_TEST
+}
 
-START_TEST(test_array_slice) {
+void test_array_slice() {
     intArray result_true = ARRAY_CREATE(int, {3,4});
     intArray result_false = ARRAY_CREATE(int, {2,3});
 
     intArray a = ARRAY_CREATE(int, TEST_VALUE);
     intArray b = array_slice(a, 2, 4);
 
-    ck_assert_int_eq(b->length, 2);
-    ck_assert(array_equals(b, result_true) == true);
-    ck_assert(array_equals(b, result_false) == false);
+    assert(b->length == 2);
+    assert(array_equals(b, result_true) == true);
+    assert(array_equals(b, result_false) == false);
 
     free(a); free(b);
     free(result_true);
     free(result_false);
-} END_TEST
+}
 
-START_TEST(test_array_equals) {
+void test_array_equals() {
     bool equal;
     intArray a = ARRAY_CREATE(int, TEST_VALUE);
     intArray b = ARRAY_CREATE(int, TEST_VALUE);
     equal = array_equals(a, b);
-    ck_assert(equal == true);
+    assert(equal == true);
 
     b->at[2] = 9;
     equal = array_equals(a, b);
-    ck_assert(equal == false);
+    assert(equal == false);
     free(a);
     free(b);
-} END_TEST
+}
 
-Suite * array_suite() {
-    Suite* suite = suite_create("Array Test");
-    TCase* cases[] = {
-        tcase_create("Core")
+int main(int argc, char const *argv[]) {
+    if (argc < 2) {
+        printf("Usage: %s <id>\n", argv[0]);
+        return 1;
+    }
+    void (*tests[])(void) = {
+        test_array_create,
+        test_array_resize,
+        test_array_join,
+        test_array_equals,
+        test_array_slice
     };
-    int num_cases = sizeof(cases)/sizeof(*cases);
-
-    tcase_add_test(cases[0], test_array_create);
-    tcase_add_test(cases[0], test_array_resize);
-    tcase_add_test(cases[0], test_array_join);
-    tcase_add_test(cases[0], test_array_slice);
-    tcase_add_test(cases[0], test_array_equals);
-
-    for (int i = 0; i < num_cases; i++)
-        suite_add_tcase(suite, cases[i]);
-    
-    return suite;
+    const int n_tests = sizeof(tests)/sizeof(*tests);
+    int index = atoi(argv[1]);
+    if (index > -1 && index < n_tests) {
+        tests[index]();
+    } else {
+        printf("Tests available: %i\n", n_tests);
+        return 1;
+    }
+    return 0;
 }

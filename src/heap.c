@@ -58,13 +58,12 @@ static void heap_downheapify(Heap* heap) {
 
 void* heap_create(size_t size, size_t dsize, comparator cmp, 
                   enum HeapOrder order) {
-    Heap* heap = malloc(sizeof(struct heap) + dsize*(size+1));
-    memset(heap->at, 0, dsize*size);
-    heap->alloc = size;
+    Heap* heap = calloc(1, sizeof(struct heap) + dsize*(size+1));
     heap->length = 0;
+    *(enum HeapOrder*)&heap->order = order;
     *(comparator*)&heap->internal.cmp = cmp;
     *(size_t*)&heap->internal.dsize = dsize;
-    *(enum HeapOrder*)&heap->order = order;
+    *(size_t*)&heap->internal.alloc = size;
     return heap;
 }
 

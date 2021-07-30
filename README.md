@@ -7,7 +7,6 @@ A C generic type data library.
 - [x] Array
 - [x] Vector
 - [x] Heap
-- [ ] Tree
 
 **List**: Doubly linked list with tools to handle it
 
@@ -47,7 +46,5 @@ vector_create(sizeof(int), 3, (int[]){1,2,3})
 
 ## Tests
 To test, build with:
-
+    
     $ cmake .. -DBUILD_TESTING=ON
-
-[Check](https://github.com/libcheck/check) is necessary to test this library.

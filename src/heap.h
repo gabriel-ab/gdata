@@ -46,9 +46,9 @@ typedef int(*comparator)(void* a,void* b);
 // Generic Heap
 typedef struct heap {
     size_t length;
-    size_t alloc;
     const enum HeapOrder order;
     const struct {
+        size_t alloc;
         comparator cmp;
         size_t dsize;
     } internal;

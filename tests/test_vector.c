@@ -1,142 +1,148 @@
-#include <check.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
 #include "vector.h"
 
 #define TEST_VALUE 1,2,3,4
 
-START_TEST(test_vector_create) {
+void test_vector_create() {
     intVector *a = vector_create(sizeof(int), 4, (int[]){TEST_VALUE});
-    ck_assert_int_eq(a->length, 4);
-    ck_assert_int_eq(a->internal.dsize, sizeof(int));
-    ck_assert_int_eq(a->at[0], 1);
-    ck_assert_int_eq(a->at[1], 2);
-    ck_assert_int_eq(a->at[2], 3);
-    ck_assert_int_eq(a->at[3], 4);
+    assert(a->length == 4);
+    assert(a->internal.dsize == sizeof(int));
+    assert(a->at[0] == 1);
+    assert(a->at[1] == 2);
+    assert(a->at[2] == 3);
+    assert(a->at[3] == 4);
     vector_delete(a);
-} END_TEST
+}
 
-START_TEST(test_vector_pushback) {
+void test_vector_pushback() {
     intVector *vector = vector_create(4, 0, 0);
-    ck_assert_int_eq(vector->length, 0);
+    assert(vector->length == 0);
     vector_pushback(vector, 2, (int[]){9,3});
 
-    ck_assert_int_eq(vector->length, 2);
-    ck_assert_int_eq(vector->at[0], 9);
-    ck_assert_int_eq(vector->at[1], 3);
+    assert(vector->length == 2);
+    assert(vector->at[0] == 9);
+    assert(vector->at[1] == 3);
 
     vector_delete(vector);
-} END_TEST
+}
 
-START_TEST(test_vector_equals) {
+void test_vector_equals() {
     bool equal;
     intVector *a = VECTOR_CREATE(int, TEST_VALUE);
     intVector *b = VECTOR_CREATE(int, TEST_VALUE);
     equal = vector_equals(a, b);
-    ck_assert(equal == true);
+    assert(equal == true);
 
     b->at[2] = 9;
     equal = vector_equals(a, b);
-    ck_assert(equal == false);
+    assert(equal == false);
     vector_delete(a);
     vector_delete(b);
-} END_TEST
+}
 
-START_TEST(test_vector_slice) {
+void test_vector_slice() {
     intVector *result_true = VECTOR_CREATE(int, 3,4);
     intVector *result_false = VECTOR_CREATE(int, 2,3);
 
     intVector *a = VECTOR_CREATE(int, TEST_VALUE);
     intVector *b = vector_slice(a, 2, 4);
 
-    ck_assert_int_eq(b->length, 2);
-    ck_assert(vector_equals(b, result_true) == true);
-    ck_assert(vector_equals(b, result_false) == false);
+    assert(b->length == 2);
+    assert(vector_equals(b, result_true) == true);
+    assert(vector_equals(b, result_false) == false);
 
     vector_delete(a);
     vector_delete(b);
     vector_delete(result_true);
     vector_delete(result_false);
-} END_TEST
+}
 
-START_TEST(test_vector_copy) {
+void test_vector_copy() {
     intVector *a = vector_create(4, 3, (int[]){1,2,3});
     intVector *b = vector_copy(a);
     bool equals = vector_equals(a,b);
-    ck_assert_int_eq(equals, true);
+    assert(equals == true);
     vector_delete(a);
     vector_delete(b);
-} END_TEST
+}
 
-START_TEST(test_vector_remove) {
+void test_vector_remove() {
     intVector *a = VECTOR_CREATE(int, 1,2,3,4,5);
     intVector *b = VECTOR_CREATE(int, 1,2,3,5);
     intVector *c = VECTOR_CREATE(int, 1,3,5);
     vector_remove(a, 3);
     bool equal = vector_equals(a,b);
-    ck_assert_int_eq(equal, true);
+    assert(equal == true);
     vector_remove(a, 1);
     equal = vector_equals(a,c);
-    ck_assert_int_eq(equal, true);
+    assert(equal == true);
     vector_delete(a);
-} END_TEST
+}
 
-START_TEST(test_vector_pushfront) {
+void test_vector_pushfront() {
     intVector *a = VECTOR_CREATE(int, 1,2);
     intVector *b = VECTOR_CREATE(int, 1,2,3,1,2);
     
     bool equals = vector_equals(a,b);
-    ck_assert_int_eq(equals, false);
+    assert(equals == false);
     vector_pushfront(a, 3, (int[]){1,2,3});
     equals = vector_equals(a,b);
-    ck_assert_int_eq(equals, true);
+    assert(equals == true);
     vector_delete(a);
     vector_delete(b);
-} END_TEST
+}
 
-START_TEST(test_vector_popback) {
+void test_vector_popback() {
     intVector *a = VECTOR_CREATE(int, TEST_VALUE);
     intVector *b = VECTOR_CREATE(int, 1,2,3);
-    ck_assert_int_eq(vector_equals(a,b), false);
+    assert(vector_equals(a,b) == false);
     int value = VECTOR_POPBACK(a);
-    ck_assert_int_eq(value, 4);
-    ck_assert_int_eq(vector_equals(a,b), true);
+    assert(value == 4);
+    assert(vector_equals(a,b) == true);
     value = VECTOR_POPBACK(a);
-    ck_assert_int_eq(value, 3);
+    assert(value == 3);
     vector_delete(a);
     vector_delete(b);
-} END_TEST
+}
 
-START_TEST(test_vector_popfront) {
+void test_vector_popfront() {
     intVector *a = VECTOR_CREATE(int, TEST_VALUE);
     intVector *b = VECTOR_CREATE(int, 2,3,4);
-    ck_assert_int_eq(vector_equals(a,b), false);
+    assert(vector_equals(a,b) == false);
     int value = VECTOR_POPFRONT(a);
-    ck_assert_int_eq(value, 1);
-    ck_assert_int_eq(vector_equals(a,b), true);
+    assert(value == 1);
+    assert(vector_equals(a,b) == true);
     value = VECTOR_POPFRONT(a);
-    ck_assert_int_eq(value, 2);
+    assert(value == 2);
     vector_delete(a);
     vector_delete(b);
-} END_TEST
+}
 
-Suite * vector_suite() {
-    Suite* suite = suite_create("Vector Test");
-    TCase* cases[] = {
-        tcase_create("Core")
+int main(int argc, char const *argv[]) {
+    if (argc < 2) {
+        printf("Usage: %s <id>\n", argv[0]);
+        return EXIT_FAILURE;
+    }
+    void (*tests[])(void) = {
+        test_vector_create,
+        test_vector_pushback,
+        test_vector_equals,
+        test_vector_slice,
+        test_vector_copy,
+        test_vector_remove,
+        test_vector_pushfront,
+        test_vector_popback,
+        test_vector_popfront
     };
-    int num_cases = sizeof(cases)/sizeof(*cases);
-   
-    tcase_add_test(cases[0], test_vector_create);
-    tcase_add_test(cases[0], test_vector_pushback);
-    tcase_add_test(cases[0], test_vector_equals);
-    tcase_add_test(cases[0], test_vector_slice);
-    tcase_add_test(cases[0], test_vector_copy);
-    tcase_add_test(cases[0], test_vector_remove);
-    tcase_add_test(cases[0], test_vector_pushfront);
-    tcase_add_test(cases[0], test_vector_popback);
-    tcase_add_test(cases[0], test_vector_popfront);
-   
-    for (int i = 0; i < num_cases; i++)
-        suite_add_tcase(suite, cases[i]);
-    
-    return suite;
+    const int n_tests = sizeof(tests)/sizeof(*tests);
+    int index = atoi(argv[1]);
+    if (index > -1 && index < n_tests) {
+        tests[index]();
+    } else {
+        printf("Tests available: %i\n", n_tests);
+        return EXIT_FAILURE;
+    }
+    return EXIT_SUCCESS;
 }
