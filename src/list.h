@@ -24,21 +24,18 @@ struct type##_list_node {\
     struct type##_list_node* back;\
     type data;\
 };\
-typedef union type ## _list {\
+typedef struct type ## _list {\
+    size_t length;\
+    struct type##_list_node* head;\
+    struct type##_list_node* tail;\
     struct {\
-        size_t length;\
-        struct type##_list_node* head;\
-        struct type##_list_node* tail;\
-        struct {\
-            struct type##_list_node* pop;\
-            const size_t dsize;\
-        } internal;\
-    };\
-    type dtype;\
-} type ## List
+        struct type##_list_node* pop;\
+        const size_t dsize;\
+    } internal;\
+} *type ## List
 
 // get list's type witch is holded by internal.dtype
-#define LIST_DTYPE(list) typeof((list)->dtype)
+#define LIST_DTYPE(list) typeof((list)->head->data)
 
 /**
  * @brief Push itens at back of the list.
@@ -107,7 +104,7 @@ typedef union type ## _list {\
  * @note use cursor->data to list's data at current iteration
  */
 #define LIST_FOR_EACH(cursor, list)\
-    for (struct LIST_DTYPE(list)_list_node *cursor = (void*)list->head;\
+    for (__auto_type cursor = list->head;\
         cursor != NULL;\
         cursor = cursor->next)
 
