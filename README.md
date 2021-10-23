@@ -2,21 +2,18 @@
 A C generic type data library.
 
 ### Implemented
-- [x] List
-- [x] Stack 
-- [x] Array
-- [x] Vector
-- [x] Heap
 
-**List**: Doubly linked list with tools to handle it
+- **List**: Doubly linked list with tools to handle it
 
-**Stack**: Singly linked list with push/pop operations
+- **Stack**: Singly linked list with push/pop operations
 
-**Array**: Simple array with lenght implementation
+- **Array**: Simple array with lenght implementation
 
-**Vector**: Dinamic size vector, with push/pop operations
+- **Vector**: Dinamic size vector, with push/pop operations
 
-**Heap**: Fixed size heap struture, with push/pop operations
+- **Heap**: Fixed size heap struture, with push/pop operations
+
+- **Dict**: Fixed size hash table struture, with set/get operations
 
 ## Syntax style
 
