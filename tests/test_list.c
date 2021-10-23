@@ -18,7 +18,7 @@ void test_list_create() {
 }
 
 void test_list_pushback() {
-    intList *list = LIST_CREATE(int);
+    intList list = LIST_CREATE(int);
     assert(list->length == 0);
     list_pushback(list, 2, (int[]){9,3});
     assert(list->length == 2);
@@ -34,7 +34,7 @@ void test_list_pushback() {
 }
 
 void test_list_clear() {
-    intList *list = LIST_CREATE(int, 1,2,3,4,5);
+    intList list = LIST_CREATE(int, 1,2,3,4,5);
     assert(list->length == 5);
     assert(list->head != NULL);
     assert(list->tail != NULL);
@@ -46,8 +46,8 @@ void test_list_clear() {
 }
 
 void test_list_equals() {
-    intList *a = LIST_CREATE(int, 1,2,3);
-    intList *b = LIST_CREATE(int, 1,2);
+    intList a = LIST_CREATE(int, 1,2,3);
+    intList b = LIST_CREATE(int, 1,2);
     bool equals = list_equals(a,b);
     assert(equals == false);
     list_pushback(b, 1, (int[]){3});
@@ -59,8 +59,8 @@ void test_list_equals() {
 }
 
 void test_list_copy() {
-    intList *a = LIST_CREATE(int, 1,2,3);
-    intList *b = list_copy(a);
+    intList a = LIST_CREATE(int, 1,2,3);
+    intList b = list_copy(a);
     bool equals = list_equals(a,b);
     assert(equals == true);
     list_delete(a);
@@ -68,7 +68,7 @@ void test_list_copy() {
 }
 
 void test_list_resize() {
-    intList *a = LIST_CREATE(int, 1,2,3);
+    intList a = LIST_CREATE(int, 1,2,3);
     assert(a->length == 3);
     list_resize(a, 5);
     assert(a->length == 5);
@@ -77,8 +77,8 @@ void test_list_resize() {
 }
 
 void test_list_pushfront() {
-    intList *a = LIST_CREATE(int, 1,2);
-    intList *b = LIST_CREATE(int, 1,2,3,1,2);
+    intList a = LIST_CREATE(int, 1,2);
+    intList b = LIST_CREATE(int, 1,2,3,1,2);
     
     bool equals = list_equals(a,b);
     assert(equals == false);
@@ -92,7 +92,7 @@ void test_list_pushfront() {
 
 // UTILS
 void test_list_at() {
-    intList *a = LIST_CREATE(int, 1,2,3);
+    intList a = LIST_CREATE(int, 1,2,3);
     int value = LIST_AT(a, 2);
     assert(value == 3);
     value = LIST_AT(a, 0);
@@ -103,7 +103,7 @@ void test_list_at() {
 }
 
 void test_list_pop() {
-    intList *a = list_create(4, 5, (int[]){1,2,3,4,5});
+    intList a = list_create(4, 5, (int[]){1,2,3,4,5});
     int value = LIST_POP(a, -1);
     assert(value == 5);
     value = LIST_POP(a, 0);
@@ -114,9 +114,9 @@ void test_list_pop() {
 }
 
 void test_list_push() {
-    intList *a = LIST_CREATE(int, 1,2);
-    intList *b = LIST_CREATE(int, 1,3,2);
-    intList *c = LIST_CREATE(int, 0,1,3,2);
+    intList a = LIST_CREATE(int, 1,2);
+    intList b = LIST_CREATE(int, 1,3,2);
+    intList c = LIST_CREATE(int, 0,1,3,2);
 
     list_push(a, -2, (int[]){3});
     bool equals = list_equals(a,b);
@@ -132,11 +132,11 @@ void test_list_push() {
 }
 
 void test_list_slice() {
-    intList *result_true = LIST_CREATE(int, 3,4);
-    intList *result_false = LIST_CREATE(int, 2,3);
+    intList result_true = LIST_CREATE(int, 3,4);
+    intList result_false = LIST_CREATE(int, 2,3);
 
-    intList *a = LIST_CREATE(int, 1,2,3,4);
-    intList *b = list_slice(a, 2, 4);
+    intList a = LIST_CREATE(int, 1,2,3,4);
+    intList b = list_slice(a, 2, 4);
 
     assert(b->length == 2);
     assert(list_equals(b, result_true) == true);

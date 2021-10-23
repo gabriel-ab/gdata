@@ -11,6 +11,7 @@
 
 #pragma once
 #include <stddef.h>
+#include <stdint.h>
 #include <stdbool.h>
 
 // ===== MACROS ===== //
@@ -123,7 +124,7 @@ typedef struct type ## _list {\
  */
 #define LIST_CREATE(type, ...) ({\
     typeof(type) _args[] = {__VA_ARGS__};\
-    (type##List*)list_create(sizeof(type), sizeof(_args)/sizeof(*_args), _args);\
+    (type##List)list_create(sizeof(type), sizeof(_args)/sizeof(*_args), _args);\
 })
 
 
@@ -133,7 +134,7 @@ typedef struct type ## _list {\
 struct list_node {
     struct list_node* next;
     struct list_node* back;
-    char data[];
+    uint8_t data[];
 };
 
 // Generic List (macros do not work)

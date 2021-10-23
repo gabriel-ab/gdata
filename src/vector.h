@@ -34,7 +34,7 @@ typedef struct type ## _vector {\
         size_t alloc;\
         size_t dsize;\
     } internal;\
-} type ## Vector
+} *type ## Vector
 
 // Declaring basic data vectors
 VECTOR_TYPEDEF(char);

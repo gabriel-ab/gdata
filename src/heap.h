@@ -11,6 +11,7 @@
 
 #pragma once
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -52,19 +53,19 @@ typedef struct heap {
         comparator cmp;
         size_t dsize;
     } internal;
-    char at[];
-} Heap;
+    uint8_t at[];
+} *Heap;
 
 /**
  * @brief Allocate a binary heap 
  * 
- * @param size: Maximum number of elements
  * @param dsize: Data size, in bytes. normally given by sizeof operator
- * @param cmp: Comparator function, similar to strcmp, take references to
+ * @param max_size: Maximum number of elements in this heap
+ * @param cmp: Function comparator, similar to strcmp, take references to
  * two values and outputs a integer. see: comparator
  * @param order: see enum HeapOrder 
  */ 
-void* heap_create(size_t size, size_t dsize, comparator cmp, enum HeapOrder order);
+void* heap_create(size_t dsize, size_t max_size, comparator cmp, enum HeapOrder order);
 
 /**
  * @brief Push a new item maintaining heap structure
@@ -79,10 +80,19 @@ void heap_push(void *heap, void *data);
  * Minimum for MIN_HEAP, Maximum for MAX_HEAP
  * 
  * @param heap: Any kind of Heap. ex: intHeap, floatHeap, ...
- * @return reference to value removed (will last until next call)
+ * @return reference to removed value (will last until next call)
  * 
  */
 void* heap_pop(void* heap);
+
+/**
+ * @brief Get first element 
+ * Minimum for MIN_HEAP, Maximum for MAX_HEAP
+ * 
+ * @param heap: Any kind of Heap. ex: intHeap, floatHeap, ...
+ * @return reference to value
+ */
+void* heap_root(void* heap);
 
 // Utility functions
 

@@ -7,20 +7,22 @@
  */
 #pragma once
 #include <stddef.h>
+#include <stdint.h>
 #include <stdbool.h>
 
 #define STACK_TYPEDEF(type)\
-typedef union type ## _stack {\
+typedef struct type##_stack_node {\
+    struct stack_node *next;\
+    type data;\
+};\
+typedef struct type ## _stack {\
+    size_t length;\
     struct {\
-        size_t length;\
-        struct {\
-            const size_t dsize;\
-            struct stack_node *pop;\
-        } internal;\
-        struct stack_node *head;\
-    };\
-    type dtype;\
-} type ## Stack
+        const size_t dsize;\
+        struct type##_stack_node *pop;\
+    } internal;\
+    struct type##_stack_node *head;\
+} *type ## Stack
 
 /**
  * @brief Creates a new Stack and attribute some values if passed
@@ -46,7 +48,7 @@ typedef union type ## _stack {\
 
 struct stack_node {
     struct stack_node *next;
-    char data[];
+    uint8_t data[];
 };
 
 typedef struct stack {

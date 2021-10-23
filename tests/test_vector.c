@@ -6,7 +6,7 @@
 #define TEST_VALUE 1,2,3,4
 
 void test_vector_create() {
-    intVector *a = vector_create(sizeof(int), 4, (int[]){TEST_VALUE});
+    intVector a = vector_create(sizeof(int), 4, (int[]){TEST_VALUE});
     assert(a->length == 4);
     assert(a->internal.dsize == sizeof(int));
     assert(a->at[0] == 1);
@@ -17,7 +17,7 @@ void test_vector_create() {
 }
 
 void test_vector_pushback() {
-    intVector *vector = vector_create(4, 0, 0);
+    intVector vector = vector_create(4, 0, 0);
     assert(vector->length == 0);
     vector_pushback(vector, 2, (int[]){9,3});
 
@@ -30,8 +30,8 @@ void test_vector_pushback() {
 
 void test_vector_equals() {
     bool equal;
-    intVector *a = VECTOR_CREATE(int, TEST_VALUE);
-    intVector *b = VECTOR_CREATE(int, TEST_VALUE);
+    intVector a = VECTOR_CREATE(int, TEST_VALUE);
+    intVector b = VECTOR_CREATE(int, TEST_VALUE);
     equal = vector_equals(a, b);
     assert(equal == true);
 
@@ -43,11 +43,11 @@ void test_vector_equals() {
 }
 
 void test_vector_slice() {
-    intVector *result_true = VECTOR_CREATE(int, 3,4);
-    intVector *result_false = VECTOR_CREATE(int, 2,3);
+    intVector result_true = VECTOR_CREATE(int, 3,4);
+    intVector result_false = VECTOR_CREATE(int, 2,3);
 
-    intVector *a = VECTOR_CREATE(int, TEST_VALUE);
-    intVector *b = vector_slice(a, 2, 4);
+    intVector a = VECTOR_CREATE(int, TEST_VALUE);
+    intVector b = vector_slice(a, 2, 4);
 
     assert(b->length == 2);
     assert(vector_equals(b, result_true) == true);
@@ -60,8 +60,8 @@ void test_vector_slice() {
 }
 
 void test_vector_copy() {
-    intVector *a = vector_create(4, 3, (int[]){1,2,3});
-    intVector *b = vector_copy(a);
+    intVector a = vector_create(4, 3, (int[]){1,2,3});
+    intVector b = vector_copy(a);
     bool equals = vector_equals(a,b);
     assert(equals == true);
     vector_delete(a);
@@ -69,9 +69,9 @@ void test_vector_copy() {
 }
 
 void test_vector_remove() {
-    intVector *a = VECTOR_CREATE(int, 1,2,3,4,5);
-    intVector *b = VECTOR_CREATE(int, 1,2,3,5);
-    intVector *c = VECTOR_CREATE(int, 1,3,5);
+    intVector a = VECTOR_CREATE(int, 1,2,3,4,5);
+    intVector b = VECTOR_CREATE(int, 1,2,3,5);
+    intVector c = VECTOR_CREATE(int, 1,3,5);
     vector_remove(a, 3);
     bool equal = vector_equals(a,b);
     assert(equal == true);
@@ -82,8 +82,8 @@ void test_vector_remove() {
 }
 
 void test_vector_pushfront() {
-    intVector *a = VECTOR_CREATE(int, 1,2);
-    intVector *b = VECTOR_CREATE(int, 1,2,3,1,2);
+    intVector a = VECTOR_CREATE(int, 1,2);
+    intVector b = VECTOR_CREATE(int, 1,2,3,1,2);
     
     bool equals = vector_equals(a,b);
     assert(equals == false);
@@ -95,8 +95,8 @@ void test_vector_pushfront() {
 }
 
 void test_vector_popback() {
-    intVector *a = VECTOR_CREATE(int, TEST_VALUE);
-    intVector *b = VECTOR_CREATE(int, 1,2,3);
+    intVector a = VECTOR_CREATE(int, TEST_VALUE);
+    intVector b = VECTOR_CREATE(int, 1,2,3);
     assert(vector_equals(a,b) == false);
     int value = VECTOR_POPBACK(a);
     assert(value == 4);
@@ -108,8 +108,8 @@ void test_vector_popback() {
 }
 
 void test_vector_popfront() {
-    intVector *a = VECTOR_CREATE(int, TEST_VALUE);
-    intVector *b = VECTOR_CREATE(int, 2,3,4);
+    intVector a = VECTOR_CREATE(int, TEST_VALUE);
+    intVector b = VECTOR_CREATE(int, 2,3,4);
     assert(vector_equals(a,b) == false);
     int value = VECTOR_POPFRONT(a);
     assert(value == 1);

@@ -1,19 +1,22 @@
 #include "vector.h"
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+
+VECTOR_TYPEDEF(uint8_t);
 
 #define VECTOR_INCREMENT 32
 #define MAX_LATERAL_SIZE 64
 
 static void resize_right(void* vector, signed long change) {
-    charVector* v = vector;
+    uint8_tVector v = vector;
     v->internal.alloc += change;
     v->internal.begin = realloc(v->internal.begin, v->internal.alloc * v->internal.dsize);
     v->at = v->internal.begin + v->internal.offset * v->internal.dsize;
 }
 
 static void resize_left(void* vector, signed long change) {
-    charVector* v = vector;
+    uint8_tVector v = vector;
     v->internal.alloc += change;
 
     if (change > 0) {
@@ -29,10 +32,10 @@ static void resize_left(void* vector, signed long change) {
 }
 
 void* vector_create(size_t dsize, size_t initial_size, void* initial_values) {
-    charVector* vector = malloc(sizeof(*vector));
+    uint8_tVector vector = malloc(sizeof(*vector));
     if (vector) {
         void* ptr = initial_size ? calloc(initial_size, dsize) : NULL;
-        *vector = (charVector){
+        *vector = (struct uint8_t_vector){
             .length = initial_size,
             .at = ptr,
             .internal.begin = ptr,
@@ -47,7 +50,7 @@ void* vector_create(size_t dsize, size_t initial_size, void* initial_values) {
 }
 
 void vector_pushback(void* vector, size_t num_elements, void* data) {
-    charVector* v = vector;
+    uint8_tVector v = vector;
     size_t avaliable = v->internal.alloc - v->internal.offset - v->length;
 
     if (v->length + num_elements >= avaliable) {
@@ -59,7 +62,7 @@ void vector_pushback(void* vector, size_t num_elements, void* data) {
 }
 
 void vector_pushfront(void* vector, size_t num_elements, void* data) {
-    charVector* v = vector;
+    uint8_tVector v = vector;
 
     if (num_elements >= v->internal.offset) {
         size_t increment = (num_elements/VECTOR_INCREMENT + 1)*VECTOR_INCREMENT;
@@ -73,7 +76,7 @@ void vector_pushfront(void* vector, size_t num_elements, void* data) {
 }
 
 void* vector_popback(void* vector) {
-    charVector* v = vector;
+    uint8_tVector v = vector;
     size_t right = v->internal.alloc - (v->internal.offset + v->length);
     
     if (right > MAX_LATERAL_SIZE)
@@ -84,7 +87,7 @@ void* vector_popback(void* vector) {
 }
 
 void* vector_popfront(void* vector) {
-    charVector* v = vector;
+    uint8_tVector v = vector;
     size_t left = v->internal.offset;
 
     if (left > MAX_LATERAL_SIZE)
@@ -97,12 +100,12 @@ void* vector_popfront(void* vector) {
 }
 
 void vector_delete(void* v) {
-    free(((charVector*)v)->internal.begin);
+    free(((uint8_tVector)v)->internal.begin);
     free(v);
 }
 
 void vector_remove(void* vector, size_t index) {
-    charVector* v = vector;
+    uint8_tVector v = vector;
     if (index > v->length/2) {
         memmove(vector_at(v, index), vector_at(v, index + 1),
             (v->length - index -1) * v->internal.dsize);
@@ -117,24 +120,24 @@ void vector_remove(void* vector, size_t index) {
 }
 
 void* vector_at(const void* vector, size_t index) {
-    const charVector* V = vector;
+    const struct uint8_t_vector *V = vector;
     return V->at + index*V->internal.dsize;
 }
 
 void* vector_copy(void* input) {
-    charVector* vec = input;
+    uint8_tVector vec = input;
     return vector_create(vec->internal.dsize, vec->length, vec->at);
 }
 
 void* vector_slice(const void* vector, unsigned int begin, unsigned int end) {
-    const charVector* vec = vector;
+    const struct uint8_t_vector *vec = vector;
     size_t size = end - begin;
     void* initial_values = vec->at + begin*vec->internal.dsize;
     return vector_create(vec->internal.dsize, size, initial_values);
 }
 
 bool vector_equals(const void* a, const void* b) {
-    const charVector *A = a, *B = b;
+    const struct uint8_t_vector *A = a, *B = b;
     if (A->length != B->length || A->internal.dsize != B->internal.dsize)
         return false;
     size_t dsize = A->internal.dsize;
