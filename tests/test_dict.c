@@ -12,7 +12,7 @@ struct dict_pair {
 };
 
 struct dict {
-    struct dict_pair** children;
+    struct dict_pair** hashtable;
     size_t length;
     size_t max_size;
 };
@@ -95,6 +95,18 @@ void test_dict_get() {
     dict_delete(d);
 }
 
+void test_dict_remove() {
+    Dict d = dict_create(10);
+    int a = 10;
+    dict_setref(d, "key", &a);
+    dict_setref(d, "key2", (int[]){15});
+
+    dict_remove(d, "key");
+    assert(dict_size(d) == 1);
+    assert(dict_get(d, "key") == NULL);
+    dict_delete(d);
+}
+
 
 int main(int argc, char const *argv[]) {
     if (argc < 2) {
@@ -106,7 +118,8 @@ int main(int argc, char const *argv[]) {
         test_dict_set_adding,
         test_dict_sets,
         test_dict_get,
-        test_dict_set_updating
+        test_dict_set_updating,
+        test_dict_remove
     };
     const int n_tests = sizeof(tests)/sizeof(*tests);
     int index = atoi(argv[1]);

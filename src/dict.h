@@ -68,7 +68,19 @@ void dict_setref(Dict dict, const char* key, void* value);
 void* dict_get(Dict dict, const char* key);
 
 /**
+ * @brief Remove a key from the dictionary.
+ * 
+ */
+void dict_remove(Dict dict, const char* key);
+
+/**
  * @brief Remove all keys from the dictionary,
  * Calling all destructor functions defined.
  */
 void dict_clear(Dict dict);
+
+/**
+ * @brief Get a list of string keys.
+ * The size is obtainable by dict_size()
+ */
+const char ** dict_keys(Dict dict);
