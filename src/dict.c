@@ -47,18 +47,14 @@ size_t dict_size(Dict dict) {
 
 void dict_set(Dict dict, const char* key, void* value, void(*destructor)(void*)) {
     size_t index = hash((unsigned char*)key) % dict->max_size;
-    struct dict_pair* node = dict->hashtable[index];
-    bool empty_list = !node;
 
     // Check the linked list for key, if it's not, return the last node to append a new one
-    while(node) {
+    for (struct dict_pair* node = dict->hashtable[index]; node; node = node->next) {
         if (strcmp(node->key, key) == 0) {
             node->value = value;
             node->del = destructor;
             return;
         }
-        if (!node->next) break;
-        node = node->next;
     }
 
     struct dict_pair* new_node = malloc(sizeof(struct dict_pair));
@@ -66,12 +62,10 @@ void dict_set(Dict dict, const char* key, void* value, void(*destructor)(void*))
         strncpy(new_node->key, key, DICT_MAX_KEY_SIZE);
         new_node->value = value;
         new_node->del = destructor;
+        new_node->next = dict->hashtable[index];
+
         dict->length++;
-        if (empty_list)
-            dict->hashtable[index] = new_node;
-        else
-            node->next = new_node;
-        
+        dict->hashtable[index] = new_node;
         // Setting flag to update dict keys if they exist
         if (dict->hashtable[0] && dict->hashtable[0]->key[0] == '\0')
             dict->hashtable[0]->key[1] = '\1';
