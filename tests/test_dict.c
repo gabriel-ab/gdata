@@ -12,17 +12,19 @@ struct dict_pair {
 };
 
 struct dict {
-    struct dict_pair** hashtable;
-    size_t length;
-    size_t max_size;
+    struct dict_pair** table;
+    size_t table_size;
+    size_t num_elements;
+    const char** keys;
+    bool update_keys;
 };
 
 
 void test_dict_creation_and_deletion() {
     Dict d = dict_create(10);
     assert(d != NULL);
-    assert(d->length == 0);
-    assert(d->max_size == 10);
+    assert(d->num_elements == 0);
+    assert(d->table_size == 10);
     dict_delete(d);
 }
 
@@ -42,7 +44,7 @@ void test_dict_set_adding() {
     dict_set(d, "str", (void*)str, fake_free_str);
     dict_set(d, "int", &a, fake_free_int);
     dict_set(d, "int2", (int[]){10}, fake_free_int);
-    assert(d->length == 3);
+    assert(d->num_elements == 3);
     dict_delete(d);
 }
 
@@ -72,7 +74,7 @@ void test_dict_set_updating() {
     assert(&b == (int*)dict_get(d, "int"));
     assert(5 == *(int*)dict_get(d, "int"));
 
-    assert(d->length == 1);
+    assert(d->num_elements == 1);
     dict_delete(d);
 }
 
@@ -91,7 +93,7 @@ void test_dict_get() {
     out = *(int*)dict_get(d, "2");
     assert(in == out);
 
-    assert(d->length == 2);
+    assert(d->num_elements == 2);
     dict_delete(d);
 }
 

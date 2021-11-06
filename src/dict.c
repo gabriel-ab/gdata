@@ -10,9 +10,11 @@ struct dict_pair {
 };
 
 struct dict {
-    struct dict_pair** hashtable;
-    size_t length;
-    size_t max_size;
+    struct dict_pair** table;
+    size_t table_size;
+    size_t num_elements;
+    const char** keys;
+    bool update_keys;
 };
 
 // djb2 hash function
@@ -27,29 +29,30 @@ static size_t hash(unsigned char *str)
     return hash;
 }
 
-Dict dict_create(size_t hashtable_size) {
+Dict dict_create(size_t size) {
     Dict result = malloc(sizeof(*result));
-    result->hashtable = calloc(hashtable_size, sizeof(struct dict_pair*));
-    result->max_size = hashtable_size;
-    result->length = 0;
+    result->table = calloc(size, sizeof(struct dict_pair*));
+    result->table_size = size;
+    result->num_elements = 0;
+    result->keys = NULL;
+    result->update_keys = false;
     return result;
 }
 
 void dict_delete(Dict dict) {
     dict_clear(dict);
-    free(dict->hashtable);
+    free(dict->table);
     free(dict);
 }
 
 size_t dict_size(Dict dict) {
-    return dict->length;
+    return dict->num_elements;
 }
 
 void dict_set(Dict dict, const char* key, void* value, void(*destructor)(void*)) {
-    size_t index = hash((unsigned char*)key) % dict->max_size;
+    size_t index = hash((unsigned char*)key) % dict->table_size;
 
-    // Check the linked list for key, if it's not, return the last node to append a new one
-    for (struct dict_pair* node = dict->hashtable[index]; node; node = node->next) {
+    for (struct dict_pair* node = dict->table[index]; node; node = node->next) {
         if (strcmp(node->key, key) == 0) {
             node->value = value;
             node->del = destructor;
@@ -62,13 +65,11 @@ void dict_set(Dict dict, const char* key, void* value, void(*destructor)(void*))
         strncpy(new_node->key, key, DICT_MAX_KEY_SIZE);
         new_node->value = value;
         new_node->del = destructor;
-        new_node->next = dict->hashtable[index];
+        new_node->next = dict->table[index];
 
-        dict->length++;
-        dict->hashtable[index] = new_node;
-        // Setting flag to update dict keys if they exist
-        if (dict->hashtable[0] && dict->hashtable[0]->key[0] == '\0')
-            dict->hashtable[0]->key[1] = '\1';
+        dict->num_elements++;
+        dict->table[index] = new_node;
+        dict->update_keys = true;
     }
 }
 
@@ -81,8 +82,8 @@ void dict_setref(Dict dict, const char* key, void* value) {
 }
 
 void* dict_get(Dict dict, const char* key) {
-    size_t index = hash((unsigned char*)key) % dict->max_size;
-    struct dict_pair* node = dict->hashtable[index];
+    size_t index = hash((unsigned char*)key) % dict->table_size;
+    struct dict_pair* node = dict->table[index];
     while(node) {
         if (strcmp(node->key, key) == 0)
             return node->value;
@@ -92,20 +93,26 @@ void* dict_get(Dict dict, const char* key) {
 }
 
 void dict_remove(Dict dict, const char* key) {
-    size_t index = hash((unsigned char*)key) % dict->max_size;
-    struct dict_pair* a = dict->hashtable[index], *b = a;
-    while (a && strncmp(a->key, key, DICT_MAX_KEY_SIZE)) b = a;
+    size_t index = hash((unsigned char*)key) % dict->table_size;
+    struct dict_pair* a = dict->table[index], *b = a;
+
+    while (a && strncmp(a->key, key, DICT_MAX_KEY_SIZE)) {
+        b = a;
+        a = a->next;
+    }
+
     if (a) {
         b->next = a->next;
         if (a->del) a->del(a->value);
         free(a);
-        dict->length--;
+        dict->num_elements--;
+        dict->update_keys = true;
     }
 }
 
 void dict_clear(Dict dict) {
-    for (size_t i = 0; i < dict->max_size; i++) {
-        struct dict_pair* curr = dict->hashtable[i], *next;
+    for (size_t i = 0; i < dict->table_size; i++) {
+        struct dict_pair* curr = dict->table[i], *next;
         while (curr) {
             next = curr->next;
             if (curr->del) curr->del(curr->value);
@@ -113,41 +120,24 @@ void dict_clear(Dict dict) {
             curr = next;
         }
     }
+    free(dict->keys);
+    dict->keys == NULL;
+    dict->update_keys = false;
+    dict->num_elements = 0;
 }
 
 const char ** dict_keys(Dict dict) {
-    struct dict_pair* node = dict->hashtable[0], *search_node;
+    if (dict->update_keys) {
+        dict->keys = realloc(dict->keys, sizeof(char*)*dict->num_elements);
 
-    if (node == NULL || node && node->key[0] != '\0') {
-        struct dict_pair* new_node = malloc(sizeof(struct dict_pair));
-        new_node->next = node;
-        new_node->del = free;
-        node = dict->hashtable[0] = new_node;
-        node->key[1] = 1;
-    }
-    const char ** list = node->value;
-    
-    if (node->key[1] == 1) {
-        list = realloc(list, sizeof(char*)*dict->length);
-
-        size_t curr = 0, i = 0;
-        search_node = dict->hashtable[i++]->next;
-
-        // search the first index ignoring
-        while (search_node) {
-            list[curr++] = search_node->key;
-            search_node = search_node->next;
-        }
-
-        while (i < dict->max_size) {
-            search_node = dict->hashtable[i++];
+        for (size_t i = 0, curr = 0; i < dict->table_size; i++) {
+            struct dict_pair* search_node = dict->table[i];
             while (search_node) {
-                list[curr++] = search_node->key;
+                dict->keys[curr++] = search_node->key;
                 search_node = search_node->next;
             }
         }
-        node->key[1] = '\0';
-        node->value = list;
+        dict->update_keys = false;
     }
-    return list;
+    return dict->keys;
 }

@@ -9,7 +9,7 @@ typedef struct dict* Dict;
 /**
  * @brief Allocate a new dictionary (hash map)
  * 
- * @param size: maximum size of hash table
+ * @param size: size of the hash-table
  * @return A new allocated Dictionary
  */
 Dict dict_create(size_t size);
