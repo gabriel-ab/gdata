@@ -9,10 +9,10 @@ typedef struct dict* Dict;
 /**
  * @brief Allocate a new dictionary (hash map)
  * 
- * @param size: size of the hash-table
+ * @param table_size: size of the hash-table
  * @return A new allocated Dictionary
  */
-Dict dict_create(size_t size);
+Dict dict_create(size_t table_size);
 
 
 /**
@@ -81,6 +81,6 @@ void dict_clear(Dict dict);
 
 /**
  * @brief Get a list of string keys.
- * The size is obtainable by dict_size()
+ * The number of elements is obtainable by dict_size()
  */
 const char ** dict_keys(Dict dict);

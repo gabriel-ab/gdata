@@ -10,7 +10,7 @@ void test_list_create() {
 
     assert(test->head == expected.head);
     assert(test->tail == expected.tail);
-    assert(test->length == expected.length);
+    assert(test->size == expected.size);
 
     assert(test->internal.pop == expected.internal.pop);
     assert(test->internal.dsize == expected.internal.dsize);
@@ -19,9 +19,9 @@ void test_list_create() {
 
 void test_list_pushback() {
     intList list = LIST_CREATE(int);
-    assert(list->length == 0);
+    assert(list->size == 0);
     list_pushback(list, 2, (int[]){9,3});
-    assert(list->length == 2);
+    assert(list->size == 2);
 
     int first = list->head->data;
     int last = list->tail->data;
@@ -35,13 +35,13 @@ void test_list_pushback() {
 
 void test_list_clear() {
     intList list = LIST_CREATE(int, 1,2,3,4,5);
-    assert(list->length == 5);
+    assert(list->size == 5);
     assert(list->head != NULL);
     assert(list->tail != NULL);
     list_clear(list);
     assert(list->head == NULL);
     assert(list->tail == NULL);
-    assert(list->length == 0);
+    assert(list->size == 0);
     list_delete(list);
 }
 
@@ -69,9 +69,9 @@ void test_list_copy() {
 
 void test_list_resize() {
     intList a = LIST_CREATE(int, 1,2,3);
-    assert(a->length == 3);
+    assert(a->size == 3);
     list_resize(a, 5);
-    assert(a->length == 5);
+    assert(a->size == 5);
     assert(LIST_AT(a, -1) == 0);
     list_delete(a);
 }
@@ -138,7 +138,7 @@ void test_list_slice() {
     intList a = LIST_CREATE(int, 1,2,3,4);
     intList b = list_slice(a, 2, 4);
 
-    assert(b->length == 2);
+    assert(b->size == 2);
     assert(list_equals(b, result_true) == true);
     assert(list_equals(b, result_false) == false);
 

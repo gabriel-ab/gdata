@@ -6,8 +6,8 @@
 
 void test_array_create() {
     intArray a = array_create(sizeof(int), 4, (int[])TEST_VALUE);
-    assert(a->length == 4);
-    assert(a->dsize == sizeof(int));
+    assert(a->size == 4);
+    assert(a->internal.dsize == sizeof(int));
     assert(a->at[0] == 1);
     assert(a->at[1] == 2);
     assert(a->at[2] == 3);
@@ -18,8 +18,8 @@ void test_array_create() {
 void test_array_resize() {
     intArray a = array_create(sizeof(int), 4, (int[])TEST_VALUE);
     array_resize(a, 6);
-    assert(a->length == 6);
-    assert(a->dsize == sizeof(int));
+    assert(a->size == 6);
+    assert(a->internal.dsize == sizeof(int));
     assert(a->at[0] == 1);
     assert(a->at[1] == 2);
     assert(a->at[5] == 0);
@@ -47,7 +47,7 @@ void test_array_slice() {
     intArray a = ARRAY_CREATE(int, TEST_VALUE);
     intArray b = array_slice(a, 2, 4);
 
-    assert(b->length == 2);
+    assert(b->size == 2);
     assert(array_equals(b, result_true) == true);
     assert(array_equals(b, result_false) == false);
 

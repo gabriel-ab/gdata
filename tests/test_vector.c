@@ -7,7 +7,7 @@
 
 void test_vector_create() {
     intVector a = vector_create(sizeof(int), 4, (int[]){TEST_VALUE});
-    assert(a->length == 4);
+    assert(a->size == 4);
     assert(a->internal.dsize == sizeof(int));
     assert(a->at[0] == 1);
     assert(a->at[1] == 2);
@@ -18,10 +18,10 @@ void test_vector_create() {
 
 void test_vector_pushback() {
     intVector vector = vector_create(4, 0, 0);
-    assert(vector->length == 0);
+    assert(vector->size == 0);
     vector_pushback(vector, 2, (int[]){9,3});
 
-    assert(vector->length == 2);
+    assert(vector->size == 2);
     assert(vector->at[0] == 9);
     assert(vector->at[1] == 3);
 
@@ -49,7 +49,7 @@ void test_vector_slice() {
     intVector a = VECTOR_CREATE(int, TEST_VALUE);
     intVector b = vector_slice(a, 2, 4);
 
-    assert(b->length == 2);
+    assert(b->size == 2);
     assert(vector_equals(b, result_true) == true);
     assert(vector_equals(b, result_false) == false);
 

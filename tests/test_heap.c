@@ -8,7 +8,7 @@ HEAP_TYPEDEF(int);
 void test_heap_create() {
     intHeap heap = heap_create(sizeof(int), 100, intcmp, MAX_HEAP);
     assert(heap->at[0] == 0);
-    assert(heap->length == 0);
+    assert(heap->size == 0);
     assert(heap->order == MAX_HEAP);
     assert(heap->internal.dsize == sizeof(int));
     assert(heap->internal.alloc == 100);
@@ -29,8 +29,8 @@ void test_heap_push() {
 void test_heap_pop() {
     intHeap heap = heap_create(sizeof(int), 20, intcmp, MAX_HEAP);
     int values[] = {8, 2, 4, 10, 5, 12, 40};
-    int length = sizeof(values)/sizeof(*values);
-    for (int i = 0; i < length; i++)
+    int size = sizeof(values)/sizeof(*values);
+    for (int i = 0; i < size; i++)
         heap_push(heap, values + i);
 
     int value = *(int*)heap_pop(heap);
@@ -47,7 +47,7 @@ void test_heap_pop() {
     assert(value == 4);
     value = *(int*)heap_pop(heap);
     assert(value == 2);
-    assert(heap->length == 0);
+    assert(heap->size == 0);
 }
 
 int main(int argc, char const *argv[]) {

@@ -7,7 +7,7 @@
 
 void test_stack_create() {
     Stack *stack = stack_create(sizeof(int), 4, (int[])TEST_VALUE);
-    assert(stack->length == 4);
+    assert(stack->size == 4);
     assert(stack->internal.dsize == sizeof(int));
     int a = *(int*)stack->head->data;
     int b = *(int*)stack->head->next->data;
@@ -24,7 +24,7 @@ void test_stack_create() {
 void test_stack_clear() {
     Stack *a = stack_create(sizeof(int), 4, (int[])TEST_VALUE);
     stack_clear(a);
-    assert(a->length == 0);
+    assert(a->size == 0);
     assert(a->internal.dsize == sizeof(int));
     assert(a->head == NULL);
     stack_delete(a);

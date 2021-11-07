@@ -60,7 +60,7 @@ void list_pushback(void* list, size_t num_elements, void *data) {
             data = (char*)data + L->internal.dsize;
         }
 
-        if (L->length++ > 0) {
+        if (L->size++ > 0) {
             L->tail->next = new_node;
             new_node->back = L->tail;
             L->tail = new_node;
@@ -80,7 +80,7 @@ void list_pushfront(void* list, size_t num_elements, void * data) {
             memcpy(new_node->data, curr, L->internal.dsize);
         }
 
-        if (L->length++ > 0) {
+        if (L->size++ > 0) {
             L->head->back = new_node;
             new_node->next = L->head;
             L->head = new_node;
@@ -119,7 +119,7 @@ void list_push(void* list, int index, void * item) {
         old_node->next = new_node;
     }
     if (item) memcpy(new_node->data, item, L->internal.dsize);
-    L->length++;
+    L->size++;
 }
 
 // Retrieve the in the index specified
@@ -131,7 +131,7 @@ void *list_pop_node(void* list, void* _node) {
         L->tail = node->back;
     if (node == L->head)
         L->head = node->next;
-    L->length--;
+    L->size--;
 
     if (L->internal.pop)
         free(L->internal.pop);
@@ -150,11 +150,11 @@ void* list_pop(void* list, int index) {
 // Resize a list allocating new memory,
 void list_resize(void* list, unsigned int new_size) {
     List* L = list;
-    if (L->length < new_size) {
-        int count = new_size -L->length;
+    if (L->size < new_size) {
+        int count = new_size -L->size;
         list_pushback(L, count, NULL);
     } else {
-        int count = L->length -new_size;
+        int count = L->size -new_size;
         for (int i = 0; i < count; i++)
             list_pop(L, -1);
     }
@@ -182,14 +182,14 @@ void list_clear(void* list) {
     if (L->internal.pop)
         free(L->internal.pop);
     L->internal.pop = L->head = L->tail = NULL;
-    L->length = 0;
+    L->size = 0;
 }
 
 // convert to a array
 void list_to_array(void* list, void* result) {
     List* L = list;
     struct list_node *n = L->head;
-    for (size_t i = 0; i < L->length; i++) {
+    for (size_t i = 0; i < L->size; i++) {
         void * array_element = (char*)result + i*L->internal.dsize;
         memcpy(array_element, n->data, L->internal.dsize);
         n = n->next;
@@ -219,7 +219,7 @@ void* list_slice(void* list, unsigned int begin, unsigned int end) {
 
 bool list_equals(void* a, void* b) {
     List *A = a, *B = b;
-    if (A->length != B->length || A->internal.dsize != B->internal.dsize)
+    if (A->size != B->size || A->internal.dsize != B->internal.dsize)
         return false;
     for (struct list_node *an = A->head, *bn = B->head;
          an != NULL;

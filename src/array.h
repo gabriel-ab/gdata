@@ -1,5 +1,5 @@
 /* 
- * Array with length
+ * Array with size
  * 
  * @author: Gabriel-AB
  * https://github.com/Gabriel-AB/
@@ -27,8 +27,8 @@
  */
 #define ARRAY_TYPEDEF(type)\
 typedef struct type ## _array {\
-    const size_t length;\
-    const size_t dsize;\
+    const size_t size;\
+    struct { const size_t dsize; } internal;\
     type at[];\
 } *type##Array
 

@@ -17,7 +17,7 @@
 
 #define HEAP_TYPEDEF(type)\
 typedef struct type##_heap {\
-    size_t length;\
+    size_t size;\
     const enum HeapOrder order;\
     struct {\
         size_t alloc;\
@@ -46,7 +46,7 @@ typedef int(*comparator)(void* a,void* b);
 
 // Generic Heap
 typedef struct heap {
-    size_t length;
+    size_t size;
     const enum HeapOrder order;
     const struct {
         size_t alloc;

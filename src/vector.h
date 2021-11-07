@@ -26,7 +26,7 @@
  */
 #define VECTOR_TYPEDEF(type)\
 typedef struct type ## _vector {\
-    size_t length;\
+    size_t size;\
     type *at;\
     struct {\
         type *begin;\

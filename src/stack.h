@@ -11,17 +11,17 @@
 #include <stdbool.h>
 
 #define STACK_TYPEDEF(type)\
-typedef struct type##_stack_node {\
-    struct stack_node *next;\
+struct type ## _stack_node {\
+    struct type ## _stack_node *next;\
     type data;\
 };\
 typedef struct type ## _stack {\
-    size_t length;\
+    size_t size;\
     struct {\
         const size_t dsize;\
-        struct type##_stack_node *pop;\
+        struct type ## _stack_node *pop;\
     } internal;\
-    struct type##_stack_node *head;\
+    struct type ## _stack_node *head;\
 } *type ## Stack
 
 /**
@@ -52,7 +52,7 @@ struct stack_node {
 };
 
 typedef struct stack {
-    size_t length;
+    size_t size;
     struct {
         const size_t dsize;
         struct stack_node *pop;
@@ -95,7 +95,7 @@ void stack_reverse(void* stack);
  */
 void* stack_pop(void* stack);
 
-/// @brief Get some value from stack. index must be in [0, stack->length)
+/// @brief Get some value from stack. index must be in [0, stack->size)
 void* stack_at(const void* stack, int index);
 
 /// @brief Get the value on head

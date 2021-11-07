@@ -17,7 +17,7 @@
  */
 #define ARRAY_FOR(iter, array_structure)\
     for (typeof(*array_structure->at) *begin = array_structure->at,\
-                             *end = begin + array_structure->length,\
+                             *end = begin + array_structure->size,\
                              iter = *begin;\
         begin != end; iter = *(++begin))
 

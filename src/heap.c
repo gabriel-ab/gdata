@@ -1,7 +1,7 @@
 #include "heap.h"
 
 static void heap_upheapify(Heap heap) {
-    size_t k = heap->length;
+    size_t k = heap->size;
     size_t s = heap->internal.dsize;
 
     // MaxHeap: father > kid
@@ -26,7 +26,7 @@ static void heap_upheapify(Heap heap) {
 static void heap_downheapify(Heap heap) {
     size_t s = heap->internal.dsize;
     size_t p = 1, f = 2;
-    size_t m = heap->length;
+    size_t m = heap->size;
     
     int cmp;
 
@@ -59,7 +59,7 @@ static void heap_downheapify(Heap heap) {
 void* heap_create(size_t dsize, size_t max_size, comparator cmp, 
                   enum HeapOrder order) {
     Heap heap = calloc(1, sizeof(struct heap) + dsize*(max_size+1));
-    heap->length = 0;
+    heap->size = 0;
     *(enum HeapOrder*)&heap->order = order;
     *(comparator*)&heap->internal.cmp = cmp;
     *(size_t*)&heap->internal.dsize = dsize;
@@ -69,8 +69,8 @@ void* heap_create(size_t dsize, size_t max_size, comparator cmp,
 
 void heap_push(void *heap, void *data) {
     Heap H = heap;
-    H->length++;
-    memcpy(H->at + H->internal.dsize*H->length, data, H->internal.dsize);
+    H->size++;
+    memcpy(H->at + H->internal.dsize*H->size, data, H->internal.dsize);
     heap_upheapify(H);
 }
 
@@ -81,10 +81,10 @@ void* heap_pop(void* heap) {
     size_t dsize = H->internal.dsize;
 
     memcpy(array, array + dsize, dsize);                        // [0] = [1]
-    memcpy(array + dsize, array + dsize*H->length, dsize);    // [1] = [used]
-    memset(array + dsize*H->length, 0, dsize);                // [used] = 0 
+    memcpy(array + dsize, array + dsize*H->size, dsize);    // [1] = [used]
+    memset(array + dsize*H->size, 0, dsize);                // [used] = 0 
     
-    H->length--;
+    H->size--;
     heap_downheapify(H);
     return array;
 }

@@ -26,7 +26,7 @@ struct type##_list_node {\
     type data;\
 };\
 typedef struct type ## _list {\
-    size_t length;\
+    size_t size;\
     struct type##_list_node* head;\
     struct type##_list_node* tail;\
     struct {\
@@ -139,7 +139,7 @@ struct list_node {
 
 // Generic List (macros do not work)
 typedef struct list {
-    size_t length;
+    size_t size;
     struct list_node* head;
     struct list_node* tail;
     struct {
